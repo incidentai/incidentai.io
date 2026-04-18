@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book a Demo — AI Incident Commander</title>
+<meta name="description" content="Book a live demo of AI Incident Commander. See autonomous incident triage in your AWS environment in under 30 seconds.">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060912;
+    --surface: #0d1526;
+    --border: #1a2a4a;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --text: #e8f0fe;
+    --muted: #6b8aad;
+    --green: #00ff9d;
+    --error: #ff6b6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px; pointer-events: none; z-index: 0;
+  }
+  .orb { position: fixed; border-radius: 50%; filter: blur(130px); pointer-events: none; z-index: 0; }
+  .orb-1 { width: 500px; height: 500px; background: rgba(0,212,255,0.05); top: -150px; right: -80px; }
+  .orb-2 { width: 350px; height: 350px; background: rgba(255,107,53,0.04); bottom: 100px; left: -80px; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 60px; background: rgba(6,9,18,0.92); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.95rem; text-decoration: none; color: var(--text); }
+  .nav-back { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); text-decoration: none; transition: color 0.2s; display: flex; align-items: center; gap: 6px; }
+  .nav-back:hover { color: var(--accent); }
+
+  /* MAIN LAYOUT */
+  .main {
+    position: relative; z-index: 1;
+    min-height: 100vh; padding: 100px 60px 60px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: start;
+    max-width: 1200px; margin: 0 auto;
+  }
+
+  /* LEFT SIDE */
+  .left { padding-top: 40px; }
+  .page-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px; }
+  .page-title { font-size: 2.8rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 20px; }
+  .page-title em { font-style: normal; color: var(--accent); }
+  .page-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--muted); line-height: 1.85; margin-bottom: 48px; font-weight: 300; }
+
+  /* What to expect */
+  .expect-title { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 20px; }
+  .expect-list { list-style: none; display: flex; flex-direction: column; gap: 16px; margin-bottom: 48px; }
+  .expect-list li { display: flex; align-items: flex-start; gap: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+  .expect-list li::before { content: '→'; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+
+  /* Social proof */
+  .social-proof { border: 1px solid var(--border); border-radius: 8px; padding: 24px; background: var(--surface); }
+  .sp-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+  .sp-items { display: flex; flex-direction: column; gap: 10px; }
+  .sp-item { display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+  .sp-item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+  /* RIGHT SIDE — FORM */
+  .form-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 40px; position: sticky; top: 100px;
+  }
+  .form-title { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .form-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+
+  .form-group { margin-bottom: 20px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  label { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  label .req { color: var(--accent); }
+
+  input, select, textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 12px 14px; color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+    transition: border-color 0.2s; outline: none; appearance: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.6; }
+  select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%236b8aad' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+  select option { background: var(--surface); }
+  textarea { resize: vertical; min-height: 100px; }
+
+  .form-submit {
+    width: 100%; background: var(--accent); color: var(--bg);
+    border: none; border-radius: 4px; padding: 15px;
+    font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.01em;
+    margin-top: 8px;
+  }
+  .form-submit:hover { background: #33ddff; transform: translateY(-1px); }
+  .form-submit:active { transform: translateY(0); }
+  .form-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .form-note { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); text-align: center; margin-top: 16px; line-height: 1.6; }
+
+  /* Success state */
+  .success-state { display: none; text-align: center; padding: 40px 20px; }
+  .success-icon { width: 64px; height: 64px; background: rgba(0,255,157,0.1); border: 1px solid var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+  .success-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; }
+  .success-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--muted); line-height: 1.7; }
+
+  /* Error message */
+  .field-error { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--error); margin-top: 6px; display: none; }
+  input.invalid, select.invalid, textarea.invalid { border-color: var(--error); }
+
+  /* Footer */
+  footer { position: relative; z-index: 1; padding: 24px 60px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .footer-text { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+  @media(max-width: 900px) {
+    nav { padding: 14px 24px; }
+    .main { grid-template-columns: 1fr; padding: 90px 24px 40px; gap: 48px; }
+    .form-wrap { position: static; }
+    .page-title { font-size: 2rem; }
+    .form-row { grid-template-columns: 1fr; }
+    footer { padding: 20px 24px; flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">
+    <svg width="30" height="30" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="6" fill="#060d1f"/>
+      <circle cx="18" cy="18" r="13" fill="none" stroke="#00d4ff" stroke-width="1.8"/>
+      <circle cx="18" cy="18" r="9" fill="none" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3 2"/>
+      <line x1="18" y1="5" x2="18" y2="11" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="18" y1="25" x2="18" y2="31" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="5" y1="18" x2="11" y2="18" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="25" y1="18" x2="31" y2="18" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <polygon points="21,11 15,19 18,19 14,26 22,17 19,17" fill="#00d4ff"/>
+    </svg>
+    AI Incident Commander
+  </a>
+  <a href="/" class="nav-back">← Back to home</a>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="page-label">// Book a demo</div>
+    <h1 class="page-title">See <em>AIC</em> triage a live incident in your environment.</h1>
+    <p class="page-desc">
+      In 30 minutes, we'll walk through a live P1 incident triage in your AWS environment —
+      from alert ingestion to Slack resolution card. No slides. No fluff. Real output.
+    </p>
+
+    <div class="expect-title">// What to expect</div>
+    <ul class="expect-list">
+      <li>Live triage of a simulated P1 incident against your AWS account</li>
+      <li>Auto-executed ECS, RDS, and CloudWatch diagnostics in real time</li>
+      <li>Blast radius detection across your actual service dependencies</li>
+      <li>Slack card delivery with AI summary and remediation steps</li>
+      <li>Walkthrough of CloudFormation VPC deployment for regulated environments</li>
+      <li>Pricing and tier discussion based on your incident volume</li>
+    </ul>
+
+    <div class="social-proof">
+      <div class="sp-label">// Platform status</div>
+      <div class="sp-items">
+        <div class="sp-item"><div class="dot"></div>Available on AWS Marketplace</div>
+        <div class="sp-item"><div class="dot"></div>Patent Pending · U.S. App. No. 64/033,032</div>
+        <div class="sp-item"><div class="dot"></div>Production validated · 48hr stability run</div>
+        <div class="sp-item"><div class="dot"></div>CloudFormation VPC deployment available</div>
+        <div class="sp-item"><div class="dot"></div>SOC2-ready multi-tenant architecture</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT — FORM -->
+  <div class="form-wrap" id="form-wrap">
+    <div id="form-content">
+      <div class="form-title">Request a Live Demo</div>
+      <div class="form-subtitle">We'll respond within 1 business day to schedule your session.</div>
+
+      <form id="demo-form" action="https://formspree.io/f/info@incidentai.io" method="POST" novalidate>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name <span class="req">*</span></label>
+            <input type="text" name="first_name" placeholder="Suman" required>
+            <div class="field-error">Please enter your first name</div>
+          </div>
+          <div class="form-group">
+            <label>Last Name <span class="req">*</span></label>
+            <input type="text" name="last_name" placeholder="Kumar" required>
+            <div class="field-error">Please enter your last name</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Work Email <span class="req">*</span></label>
+          <input type="email" name="email" placeholder="you@company.com" required>
+          <div class="field-error">Please enter a valid work email</div>
+        </div>
+
+        <div class="form-group">
+          <label>Company <span class="req">*</span></label>
+          <input type="text" name="company" placeholder="Acme Corp" required>
+          <div class="field-error">Please enter your company name</div>
+        </div>
+
+        <div class="form-group">
+          <label>Job Title</label>
+          <input type="text" name="job_title" placeholder="VP Engineering / SRE Lead / CTO">
+        </div>
+
+        <div class="form-group">
+          <label>Team Size <span class="req">*</span></label>
+          <select name="team_size" required>
+            <option value="" disabled selected>Select team size</option>
+            <option value="1-10">1–10 engineers</option>
+            <option value="11-50">11–50 engineers</option>
+            <option value="51-200">51–200 engineers</option>
+            <option value="200+">200+ engineers</option>
+          </select>
+          <div class="field-error">Please select your team size</div>
+        </div>
+
+        <div class="form-group">
+          <label>Monthly Incident Volume</label>
+          <select name="incident_volume">
+            <option value="" disabled selected>Approximate incidents/month</option>
+            <option value="<100">Less than 100</option>
+            <option value="100-1000">100 – 1,000</option>
+            <option value="1000-10000">1,000 – 10,000</option>
+            <option value="10000+">10,000+</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Industry</label>
+          <select name="industry">
+            <option value="" disabled selected>Select your industry</option>
+            <option value="banking">Banking / Financial Services</option>
+            <option value="insurance">Insurance</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="government">Government</option>
+            <option value="ecommerce">E-commerce / Retail</option>
+            <option value="saas">SaaS / Technology</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tell us about your environment</label>
+          <textarea name="message" placeholder="Current alerting tools, AWS services used, biggest incident response pain points..."></textarea>
+        </div>
+
+        <input type="hidden" name="_subject" value="AIC Demo Request — incidentai.io">
+        <input type="hidden" name="_next" value="https://incidentai.io/contact.html?success=true">
+
+        <button type="submit" class="form-submit" id="submit-btn">
+          Request Live Demo →
+        </button>
+
+        <div class="form-note">
+          No spam. We'll only contact you about your demo request.<br>
+          Typical response time: within 1 business day.
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Success state -->
+    <div class="success-state" id="success-state">
+      <div class="success-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M6 14L11 19L22 9" stroke="#00ff9d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="success-title">Demo Request Received!</div>
+      <div class="success-desc">
+        We'll be in touch within 1 business day to schedule your live demo.<br><br>
+        In the meantime, feel free to reach out directly at<br>
+        <a href="mailto:info@incidentai.io" style="color:var(--accent);">info@incidentai.io</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-text">© 2026 NovaAI Technologies LLC</div>
+  <div class="footer-text">info@incidentai.io</div>
+  <div class="footer-text">Patent Pending · U.S. Provisional App. No. 64/033,032</div>
+</footer>
+
+<script>
+  // Check for success redirect
+  if (window.location.search.includes('success=true')) {
+    document.getElementById('form-content').style.display = 'none';
+    document.getElementById('success-state').style.display = 'block';
+  }
+
+  // Form validation
+  const form = document.getElementById('demo-form');
+  form.addEventListener('submit', function(e) {
+    let valid = true;
+    const required = form.querySelectorAll('[required]');
+    required.forEach(field => {
+      const err = field.parentElement.querySelector('.field-error');
+      if (!field.value.trim() || (field.type === 'email' && !field.value.includes('@'))) {
+        field.classList.add('invalid');
+        if (err) err.style.display = 'block';
+        valid = false;
+      } else {
+        field.classList.remove('invalid');
+        if (err) err.style.display = 'none';
+      }
+    });
+    if (!valid) e.preventDefault();
+    else {
+      const btn = document.getElementById('submit-btn');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+    }
+  });
+
+  // Clear validation on input
+  form.querySelectorAll('input, select, textarea').forEach(field => {
+    field.addEventListener('input', () => {
+      field.classList.remove('invalid');
+      const err = field.parentElement.querySelector('.field-error');
+      if (err) err.style.display = 'none';
+    });
+  });
+</script>
+
+</body>
+</html>
