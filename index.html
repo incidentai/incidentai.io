@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Incident Commander — Autonomous Triage in Under 30 Seconds</title>
+<title>AI Incident Commander — Autonomous Incident Triage for AWS</title>
+<meta name="description" content="AI Incident Commander autonomously triages production incidents, runs AWS diagnostics, and posts structured resolution cards to Slack in under 30 seconds. Built for regulated industries.">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -17,126 +18,307 @@
     --green: #00ff9d;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; overflow-x: hidden; }
   body::before {
     content: ''; position: fixed; inset: 0;
-    background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
     background-size: 60px 60px; pointer-events: none; z-index: 0;
   }
-  .orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
-  .orb-1 { width: 600px; height: 600px; background: rgba(0,212,255,0.06); top: -200px; right: -100px; }
-  .orb-2 { width: 400px; height: 400px; background: rgba(255,107,53,0.05); bottom: 100px; left: -100px; }
+  .orb { position: fixed; border-radius: 50%; filter: blur(130px); pointer-events: none; z-index: 0; }
+  .orb-1 { width: 500px; height: 500px; background: rgba(0,212,255,0.05); top: -150px; right: -80px; }
+  .orb-2 { width: 350px; height: 350px; background: rgba(255,107,53,0.04); bottom: 150px; left: -80px; }
 
+  /* ── NAV ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 20px 60px; background: rgba(6,9,18,0.8); backdrop-filter: blur(20px);
+    padding: 16px 60px; background: rgba(6,9,18,0.92); backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
   }
-  .logo { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; }
-  .nav-cta {
-    background: var(--accent); color: var(--bg); padding: 10px 24px; border-radius: 4px;
-    font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 500;
-    text-decoration: none; letter-spacing: 0.05em; transition: all 0.2s;
-  }
-  .nav-cta:hover { background: #33ddff; transform: translateY(-1px); }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.95rem; letter-spacing: -0.02em; text-decoration: none; color: var(--text); }
+  .nav-links { display: flex; align-items: center; gap: 32px; }
+  .nav-links a { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { background: var(--accent) !important; color: var(--bg) !important; padding: 9px 22px; border-radius: 4px; font-weight: 500 !important; }
+  .nav-cta:hover { background: #33ddff !important; }
 
+  /* ── HERO ── */
   .hero {
     position: relative; z-index: 1; min-height: 100vh;
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 120px 60px 80px; max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+    padding: 120px 60px 80px; max-width: 1280px; margin: 0 auto;
   }
+  .hero-left { display: flex; flex-direction: column; }
   .badge {
     display: inline-flex; align-items: center; gap: 8px;
     background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
-    padding: 6px 16px; border-radius: 100px; font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem; color: var(--accent); letter-spacing: 0.08em;
-    margin-bottom: 40px; width: fit-content; animation: fadeUp 0.6s ease both;
+    padding: 5px 14px; border-radius: 100px; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem; color: var(--accent); letter-spacing: 0.08em;
+    margin-bottom: 28px; width: fit-content;
+    animation: fadeUp 0.5s ease both;
   }
-  .badge::before { content: ''; width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
-  h1 { font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 800; line-height: 1.0; letter-spacing: -0.04em; margin-bottom: 32px; animation: fadeUp 0.6s ease 0.1s both; }
-  h1 .highlight { color: var(--accent); }
-  h1 .highlight2 { color: var(--accent2); }
-  .hero-desc { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; color: var(--muted); max-width: 600px; line-height: 1.7; margin-bottom: 48px; font-weight: 300; animation: fadeUp 0.6s ease 0.2s both; }
-  .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; animation: fadeUp 0.6s ease 0.3s both; }
-  .cta-primary {
-    background: var(--accent); color: var(--bg); padding: 16px 36px; border-radius: 4px;
-    font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.2s;
-  }
-  .cta-primary:hover { background: #33ddff; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,0.3); }
-  .cta-secondary {
-    background: transparent; color: var(--text); padding: 16px 36px; border-radius: 4px;
-    font-weight: 600; font-size: 0.95rem; text-decoration: none; border: 1px solid var(--border); transition: all 0.2s;
-  }
+  .badge::before { content: ''; width: 5px; height: 5px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; flex-shrink: 0; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+  h1 { font-size: clamp(2rem, 3.5vw, 3.2rem); font-weight: 800; line-height: 1.12; letter-spacing: -0.03em; margin-bottom: 20px; animation: fadeUp 0.5s ease 0.1s both; }
+  h1 em { font-style: normal; color: var(--accent); }
+  h1 strong { color: var(--accent2); font-weight: 800; }
+  .hero-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; color: var(--muted); line-height: 1.85; margin-bottom: 36px; font-weight: 300; animation: fadeUp 0.5s ease 0.2s both; max-width: 500px; }
+  .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; animation: fadeUp 0.5s ease 0.3s both; margin-bottom: 48px; }
+  .cta-primary { background: var(--accent); color: var(--bg); padding: 13px 28px; border-radius: 4px; font-weight: 700; font-size: 0.88rem; text-decoration: none; transition: all 0.2s; white-space: nowrap; }
+  .cta-primary:hover { background: #33ddff; transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,212,255,0.25); }
+  .cta-secondary { background: transparent; color: var(--text); padding: 13px 28px; border-radius: 4px; font-weight: 600; font-size: 0.88rem; text-decoration: none; border: 1px solid var(--border); transition: all 0.2s; white-space: nowrap; }
   .cta-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .hero-metrics { display: flex; gap: 32px; animation: fadeUp 0.5s ease 0.4s both; }
+  .metric { display: flex; flex-direction: column; gap: 2px; }
+  .metric-val { font-size: 1.6rem; font-weight: 800; color: var(--accent); letter-spacing: -0.04em; line-height: 1; }
+  .metric-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
 
-  .stats { position: relative; z-index: 1; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); padding: 28px 60px; display: flex; justify-content: center; gap: 80px; flex-wrap: wrap; }
-  .stat { text-align: center; }
-  .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--accent); letter-spacing: -0.04em; line-height: 1; }
-  .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
-
-  .terminal-section { position: relative; z-index: 1; padding: 100px 60px; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
-  .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px; }
-  .section-title { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 24px; }
-  .section-desc { font-family: 'JetBrains Mono', monospace; color: var(--muted); line-height: 1.8; font-size: 0.9rem; font-weight: 300; margin-bottom: 32px; }
-  .terminal { background: #050810; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
-  .terminal-header { background: var(--surface); padding: 12px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
+  /* Hero terminal */
+  .hero-right { animation: fadeUp 0.5s ease 0.2s both; }
+  .terminal { background: #050810; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; box-shadow: 0 24px 60px rgba(0,0,0,0.4); }
+  .terminal-header { background: #0a1020; padding: 12px 16px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid var(--border); }
   .dot { width: 10px; height: 10px; border-radius: 50%; }
-  .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
-  .terminal-title { font-size: 0.7rem; color: var(--muted); margin-left: 8px; letter-spacing: 0.05em; }
-  .terminal-body { padding: 20px; line-height: 1.8; }
-  .t-time { color: var(--muted); } .t-info { color: var(--accent); } .t-warn { color: var(--accent2); }
-  .t-success { color: var(--green); } .t-key { color: #c792ea; } .t-val { color: #ffcb6b; }
-  .cursor { display: inline-block; width: 8px; height: 14px; background: var(--accent); animation: blink 1s infinite; vertical-align: middle; }
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .dot-r{background:#ff5f57} .dot-y{background:#febc2e} .dot-g{background:#28c840}
+  .terminal-title { font-size: 0.67rem; color: var(--muted); margin-left: 6px; letter-spacing: 0.05em; }
+  .terminal-body { padding: 20px; line-height: 1.9; }
+  .t-time{color:var(--muted)} .t-info{color:var(--accent)} .t-warn{color:var(--accent2)}
+  .t-success{color:var(--green)} .t-key{color:#c792ea} .t-val{color:#ffcb6b}
+  .cursor { display: inline-block; width: 7px; height: 13px; background: var(--accent); animation: blink 1s infinite; vertical-align: middle; }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
-  .features { position: relative; z-index: 1; padding: 80px 60px; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-  .features-inner { max-width: 1200px; margin: 0 auto; }
-  .features-header { text-align: center; margin-bottom: 64px; }
+  /* ── TRUST BAR ── */
+  .trust-bar {
+    position: relative; z-index: 1;
+    background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    padding: 18px 60px; display: flex; align-items: center; justify-content: center; gap: 48px; flex-wrap: wrap;
+  }
+  .trust-label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; white-space: nowrap; }
+  .trust-items { display: flex; align-items: center; gap: 36px; flex-wrap: wrap; justify-content: center; }
+  .trust-item { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+  .trust-item .check { color: var(--accent); }
+
+  /* ── ROI STATS ── */
+  .roi-section { position: relative; z-index: 1; padding: 80px 60px; max-width: 1280px; margin: 0 auto; }
+  .roi-header { text-align: center; margin-bottom: 56px; }
+  .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 14px; }
+  .section-title { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; }
+  .roi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+  .roi-card { padding: 36px 28px; background: var(--surface); border: 1px solid var(--border); text-align: center; transition: border-color 0.3s; }
+  .roi-card:hover { border-color: rgba(0,212,255,0.2); }
+  .roi-num { font-size: 2.6rem; font-weight: 800; color: var(--accent); letter-spacing: -0.04em; line-height: 1; margin-bottom: 8px; }
+  .roi-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); line-height: 1.6; font-weight: 300; }
+
+  /* ── HOW IT WORKS ── */
+  .how-section { position: relative; z-index: 1; padding: 80px 60px; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .how-inner { max-width: 1280px; margin: 0 auto; }
+  .how-header { text-align: center; margin-bottom: 60px; }
+  .how-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+  .step { padding: 40px; border-right: 1px solid var(--border); position: relative; }
+  .step:last-child { border-right: none; }
+  .step-num { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--accent); letter-spacing: 0.15em; margin-bottom: 16px; }
+  .step-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.02em; }
+  .step-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); line-height: 1.85; font-weight: 300; }
+  .step-time { margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--green); }
+
+  /* ── VIDEO ── */
+  .video-section { position: relative; z-index: 1; padding: 80px 60px; max-width: 960px; margin: 0 auto; }
+  .video-header { text-align: center; margin-bottom: 36px; }
+  .video-wrapper {
+    position: relative; border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    aspect-ratio: 16/9; background: #050810; cursor: pointer;
+  }
+  .video-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
+  .video-bg-lines { position: absolute; inset: 0; padding: 40px 50px; overflow: hidden; }
+  .vl { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; line-height: 2.1; opacity: 0.25; }
+  .vl.c1{color:var(--accent)} .vl.c2{color:var(--accent2)} .vl.c3{color:var(--green)}
+  .play-circle {
+    position: relative; z-index: 2;
+    width: 80px; height: 80px; background: var(--accent); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 50px rgba(0,212,255,0.35); transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .video-wrapper:hover .play-circle { transform: scale(1.08); box-shadow: 0 0 70px rgba(0,212,255,0.5); }
+  .play-label { position: absolute; bottom: 24px; left: 0; right: 0; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+  .video-caption { text-align: center; margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+  .video-caption a { color: var(--accent); text-decoration: none; }
+
+  /* ── FEATURES ── */
+  .features-section { position: relative; z-index: 1; padding: 80px 60px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .features-inner { max-width: 1280px; margin: 0 auto; }
+  .features-header { text-align: center; margin-bottom: 56px; }
   .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
-  .feature { padding: 40px; border: 1px solid var(--border); background: var(--bg); position: relative; overflow: hidden; transition: all 0.3s; }
-  .feature:hover { background: rgba(0,212,255,0.03); border-color: rgba(0,212,255,0.2); }
+  .feature { padding: 36px; border: 1px solid var(--border); background: var(--bg); position: relative; overflow: hidden; transition: all 0.3s; }
+  .feature:hover { background: rgba(0,212,255,0.02); border-color: rgba(0,212,255,0.2); }
   .feature::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); opacity: 0; transition: opacity 0.3s; }
   .feature:hover::before { opacity: 1; }
-  .feature-icon { width: 44px; height: 44px; margin-bottom: 20px; }
-  .feature-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.02em; }
-  .feature-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--muted); line-height: 1.8; font-weight: 300; }
+  .feature-icon { width: 38px; height: 38px; margin-bottom: 16px; }
+  .feature-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; }
+  .feature-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--muted); line-height: 1.8; font-weight: 300; }
 
-  .pricing { position: relative; z-index: 1; padding: 100px 60px; max-width: 1200px; margin: 0 auto; }
-  .pricing-header { text-align: center; margin-bottom: 64px; }
-  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-  .plan { border: 1px solid var(--border); border-radius: 8px; padding: 40px; background: var(--surface); position: relative; transition: all 0.3s; }
-  .plan:hover { border-color: rgba(0,212,255,0.3); transform: translateY(-4px); }
-  .plan.featured { border-color: var(--accent); background: linear-gradient(135deg, rgba(0,212,255,0.05), var(--surface)); }
-  .plan-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--bg); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; padding: 4px 16px; border-radius: 100px; white-space: nowrap; }
-  .plan-name { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 12px; }
-  .plan-price { font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 4px; }
-  .plan-period { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); margin-bottom: 32px; }
-  .plan-features { list-style: none; margin-bottom: 36px; }
-  .plan-features li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--muted); padding: 8px 0; border-bottom: 1px solid rgba(26,42,74,0.5); display: flex; align-items: center; gap: 10px; }
-  .plan-features li::before { content: '→'; color: var(--accent); flex-shrink: 0; }
-  .plan-cta { display: block; text-align: center; padding: 14px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; text-decoration: none; transition: all 0.2s; border: 1px solid var(--border); color: var(--text); }
+  /* ── INTEGRATIONS ── */
+  .integrations { position: relative; z-index: 1; padding: 60px; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); text-align: center; }
+  .integrations h3 { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 32px; }
+  .integration-grid { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; max-width: 900px; margin: 0 auto; }
+  .integration-pill { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); white-space: nowrap; transition: all 0.2s; }
+  .integration-pill:hover { border-color: rgba(0,212,255,0.3); color: var(--text); }
+
+  /* ── WHY AIC ── */
+  .why-section { position: relative; z-index: 1; padding: 80px 60px; max-width: 1280px; margin: 0 auto; }
+  .why-header { text-align: center; margin-bottom: 56px; }
+  .comparison-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
+  .comparison-table th { padding: 16px 24px; text-align: left; border-bottom: 2px solid var(--border); color: var(--muted); letter-spacing: 0.08em; font-weight: 400; }
+  .comparison-table th.highlight { color: var(--accent); }
+  .comparison-table td { padding: 14px 24px; border-bottom: 1px solid rgba(26,42,74,0.4); color: var(--muted); }
+  .comparison-table td.feature-name { color: var(--text); font-weight: 500; }
+  .comparison-table td.yes { color: var(--green); }
+  .comparison-table td.no { color: #3a4a6a; }
+  .comparison-table td.aic { color: var(--accent); font-weight: 500; }
+  .comparison-table tr:hover td { background: rgba(255,255,255,0.01); }
+
+  /* ── PRICING ── */
+  .pricing-section { position: relative; z-index: 1; padding: 80px 60px; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .pricing-inner { max-width: 1100px; margin: 0 auto; }
+  .pricing-header { text-align: center; margin-bottom: 56px; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .plan { border: 1px solid var(--border); border-radius: 8px; padding: 36px; background: var(--bg); position: relative; transition: all 0.3s; }
+  .plan:hover { border-color: rgba(0,212,255,0.3); transform: translateY(-3px); }
+  .plan.featured { border-color: var(--accent); background: linear-gradient(135deg, rgba(0,212,255,0.04), var(--bg)); }
+  .plan-badge { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--bg); font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 500; letter-spacing: 0.1em; padding: 3px 14px; border-radius: 100px; white-space: nowrap; }
+  .plan-name { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 10px; }
+  .plan-price { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 4px; }
+  .plan-period { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); margin-bottom: 28px; }
+  .plan-features { list-style: none; margin-bottom: 28px; }
+  .plan-features li { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); padding: 7px 0; border-bottom: 1px solid rgba(26,42,74,0.4); display: flex; align-items: flex-start; gap: 9px; }
+  .plan-features li::before { content: '→'; color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+  .plan-cta { display: block; text-align: center; padding: 12px; border-radius: 4px; font-weight: 700; font-size: 0.82rem; text-decoration: none; transition: all 0.2s; border: 1px solid var(--border); color: var(--text); }
   .plan.featured .plan-cta { background: var(--accent); color: var(--bg); border-color: var(--accent); }
-  .plan-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+  .plan-cta:hover { opacity: 0.85; }
+  .pricing-note { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--muted); text-align: center; margin-top: 28px; }
 
-  .aws-section { position: relative; z-index: 1; text-align: center; padding: 60px; border-top: 1px solid var(--border); background: var(--surface); }
-  .aws-badge { display: inline-flex; align-items: center; gap: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px 40px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--muted); }
+  /* ── FAQ ── */
+  .faq-section { position: relative; z-index: 1; padding: 80px 60px; max-width: 800px; margin: 0 auto; }
+  .faq-header { text-align: center; margin-bottom: 48px; }
+  .faq-item { border-bottom: 1px solid var(--border); padding: 20px 0; cursor: pointer; }
+  .faq-q { font-weight: 700; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .faq-q::after { content: '+'; color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; flex-shrink: 0; }
+  .faq-a { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); line-height: 1.8; margin-top: 14px; font-weight: 300; display: none; }
+  .faq-item.open .faq-q::after { content: '−'; }
+  .faq-item.open .faq-a { display: block; }
 
-  footer { position: relative; z-index: 1; padding: 40px 60px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .footer-text { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); }
+  /* ── CTA BANNER ── */
+  .cta-banner { position: relative; z-index: 1; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 80px 60px; text-align: center; }
+  .cta-banner h2 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 14px; }
+  .cta-banner p { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--muted); margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
+  .cta-group { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  /* ── TRUST BADGES ── */
+  .trust-badges { position: relative; z-index: 1; padding: 40px 60px; display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; border-top: 1px solid var(--border); }
+  .tbadge { display: inline-flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 24px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); }
+  .tbadge .tval { color: var(--accent); }
 
-  @media (max-width: 768px) {
-    nav { padding: 16px 24px; }
-    .hero { padding: 100px 24px 60px; }
-    .terminal-section { grid-template-columns: 1fr; padding: 60px 24px; gap: 40px; }
-    .features-grid { grid-template-columns: 1fr; }
-    .pricing-grid { grid-template-columns: 1fr; }
-    .stats { padding: 24px; gap: 40px; }
-    footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px; }
+  /* ── FOOTER ── */
+  footer { position: relative; z-index: 1; padding: 48px 60px 32px; border-top: 1px solid var(--border); }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 40px; }
+  .footer-brand .footer-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.9rem; margin-bottom: 14px; }
+  .footer-tagline { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
+  .footer-contact { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent); text-decoration: none; }
+  .footer-col h4 { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px; }
+  .footer-col a { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); text-decoration: none; margin-bottom: 10px; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--accent); }
+  .footer-bottom { border-top: 1px solid var(--border); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .footer-text { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  @media(max-width:900px){
+    nav{padding:14px 24px}
+    .nav-links{display:none}
+    .hero{grid-template-columns:1fr; padding:100px 24px 60px; min-height:auto}
+    .roi-grid{grid-template-columns:1fr 1fr}
+    .how-steps{grid-template-columns:1fr}
+    .step{border-right:none; border-bottom:1px solid var(--border)}
+    .step:last-child{border-bottom:none}
+    .features-grid{grid-template-columns:1fr}
+    .pricing-grid{grid-template-columns:1fr}
+    .footer-grid{grid-template-columns:1fr 1fr}
+    .trust-bar{padding:16px 24px; gap:16px}
+    .video-section,.faq-section,.roi-section,.why-section{padding:60px 24px}
+    .integrations,.cta-banner,.trust-badges,.features-section,.how-section,.pricing-section{padding:60px 24px}
+    footer{padding:40px 24px 24px}
+    .footer-bottom{flex-direction:column; text-align:center}
   }
+
+  /* ── SLACK SECTION ── */
+  .slack-section { position: relative; z-index: 1; padding: 80px 60px; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .slack-inner { max-width: 960px; margin: 0 auto; }
+  .slack-header { text-align: center; margin-bottom: 40px; }
+  .slack-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--muted); margin-top: 12px; line-height: 1.7; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+  .slack-tabs { display: flex; gap: 2px; margin-bottom: 24px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 4px; }
+  .slack-tab { flex: 1; background: transparent; border: none; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 8px 12px; border-radius: 4px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em; }
+  .slack-tab.active { background: var(--surface); color: var(--accent); }
+  .slack-tab:hover { color: var(--text); }
+
+  .slack-card-wrap { display: none; }
+  .slack-card-wrap.active { display: block; }
+
+  .slack-window { background: #1a1d21; border-radius: 10px; overflow: hidden; border: 1px solid #2f3136; }
+  .slack-topbar { background: #19171d; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2f3136; }
+  .slack-channel { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; color: #fff; }
+  .slack-dots { display: flex; gap: 6px; }
+  .slack-dots span { width: 8px; height: 8px; border-radius: 50%; background: #2f3136; }
+  .slack-body { padding: 20px; }
+  .slack-msg { display: flex; gap: 12px; }
+  .slack-avatar { width: 36px; height: 36px; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.7rem; color: #fff; }
+  .slack-content { flex: 1; min-width: 0; }
+  .slack-sender { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.88rem; color: #fff; margin-bottom: 6px; }
+  .slack-app { background: #1264a3; color: #fff; font-size: 0.55rem; padding: 1px 5px; border-radius: 3px; font-weight: 500; margin-left: 4px; vertical-align: middle; }
+  .slack-time { color: #868686; font-size: 0.72rem; font-weight: 400; margin-left: 6px; }
+
+  .slack-card { background: #222529; border-left: 4px solid #e01e5a; border-radius: 0 6px 6px 0; padding: 0; overflow: hidden; font-size: 0.82rem; }
+  .sc-header { padding: 12px 16px; background: #1a1d21; border-bottom: 1px solid #2f3136; font-family: 'Syne', sans-serif; color: #fff; display: flex; align-items: center; gap: 8px; }
+  .sc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .sc-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .sc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sc-field { display: flex; flex-direction: column; gap: 2px; }
+  .sc-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 500; color: #868686; }
+  .sc-val { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: #d1d2d3; }
+  .sc-p1 { color: #e01e5a; font-weight: 600; }
+  .sc-green { color: #2eb67d; }
+  .sc-tag { background: #2f3136; color: #9ea6b4; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; padding: 2px 7px; border-radius: 3px; display: inline-block; }
+  .sc-divider { height: 1px; background: #2f3136; margin: 4px 0; }
+  .sc-text { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #9ea6b4; line-height: 1.7; font-weight: 300; }
+  .sc-blast { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #9ea6b4; line-height: 1.9; }
+  .sc-action-tag { background: #2f3136; border: 1px solid #404448; border-radius: 4px; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #00d4ff; display: inline-block; margin-bottom: 6px; }
+  .sc-action-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #868686; }
+  .sc-buttons { padding: 12px 16px; background: #1a1d21; border-top: 1px solid #2f3136; display: flex; gap: 8px; }
+  .sc-btn { border: none; border-radius: 4px; padding: 8px 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 500; cursor: pointer; transition: opacity 0.2s; }
+  .sc-approve { background: #2eb67d; color: #fff; }
+  .sc-reject { background: #e01e5a; color: #fff; }
+  .sc-investigate { background: #2f3136; color: #d1d2d3; }
+  .sc-btn:hover { opacity: 0.85; }
+
+  /* Diagnostics */
+  .sc-diag-item { background: #1a1d21; border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; }
+  .sc-diag-title { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #d1d2d3; font-weight: 500; margin-bottom: 6px; }
+  .sc-ms { color: #868686; font-weight: 300; }
+  .sc-code { background: #141618; border-radius: 3px; padding: 6px 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #e06c75; line-height: 1.6; word-break: break-all; margin-bottom: 6px; }
+  .sc-diag-result { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; line-height: 1.5; }
+  .sc-warn-text { color: #e5c07b; }
+  .sc-green-text { color: #2eb67d; }
+
+  /* Remediation */
+  .sc-rem-item { background: #1a1d21; border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; }
+  .sc-rem-title { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #d1d2d3; font-weight: 500; margin-bottom: 6px; }
+  .sc-net-item { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #9ea6b4; padding: 4px 0; }
+
+  @media(max-width:900px){
+    .slack-section { padding: 60px 24px; }
+    .slack-tabs { flex-wrap: wrap; }
+    .sc-row { grid-template-columns: 1fr; }
+  }
+
 </style>
 </head>
 <body>
@@ -146,9 +328,8 @@
 
 <!-- NAV -->
 <nav>
-  <div class="logo">
-    <!-- Crosshair + Bolt logo -->
-    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <a href="#" class="logo">
+    <svg width="30" height="30" viewBox="0 0 36 36" fill="none">
       <rect width="36" height="36" rx="6" fill="#060d1f"/>
       <circle cx="18" cy="18" r="13" fill="none" stroke="#00d4ff" stroke-width="1.8"/>
       <circle cx="18" cy="18" r="9" fill="none" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3 2"/>
@@ -159,75 +340,343 @@
       <polygon points="21,11 15,19 18,19 14,26 22,17 19,17" fill="#00d4ff"/>
     </svg>
     AI Incident Commander
+  </a>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="mailto:info@incidentai.io">Contact</a>
+    <a href="mailto:info@incidentai.io" class="nav-cta">Book a Demo →</a>
   </div>
-  <a href="mailto:suman.aic11@gmail.com" class="nav-cta">REQUEST DEMO →</a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="badge">AWS MARKETPLACE · NOW AVAILABLE</div>
-  <h1>
-    Incidents triaged.<br>
-    <span class="highlight">Autonomously.</span><br>
-    <span class="highlight2">Under 30 seconds.</span>
-  </h1>
-  <p class="hero-desc">
-    AI Incident Commander detects, triages, and resolves production incidents
-    before your on-call engineer finishes reading the alert.
-    Built for regulated industries on AWS.
-  </p>
-  <div class="hero-ctas">
-    <a href="mailto:suman.aic11@gmail.com" class="cta-primary">Get Early Access →</a>
-    <a href="mailto:suman.aic11@gmail.com" class="cta-secondary">View on AWS Marketplace</a>
+  <div class="hero-left">
+    <div class="badge">NOW AVAILABLE ON AWS MARKETPLACE · PROVISIONALLY PATENTED</div>
+    <h1>Your on-call team<br>gets <em>answers,</em><br><strong>not raw alerts.</strong></h1>
+    <p class="hero-desc">
+      AI Incident Commander autonomously triages production incidents, maps blast radius
+      across dependent services, executes real AWS diagnostics, and delivers a complete
+      resolution briefing to Slack or Teams — then auto-resolves based on your runbooks
+      when configured to do so. Your engineers arrive with full context, not a raw alert.
+      Built for regulated industries on AWS.
+    </p>
+    <div class="hero-ctas">
+      <a href="mailto:info@incidentai.io" class="cta-primary">Book a Live Demo →</a>
+      <a href="mailto:info@incidentai.io" class="cta-secondary">Talk to Sales</a>
+    </div>
+    <div class="hero-metrics">
+      <div class="metric">
+        <div class="metric-val">&lt;30s</div>
+        <div class="metric-label">Time to triage</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">90%</div>
+        <div class="metric-label">MTTR reduction</div>
+      </div>
+      <div class="metric">
+        <div class="metric-val">24/7</div>
+        <div class="metric-label">Always-on coverage</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <span class="terminal-title">aic-prod · live triage · payments-svc</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-time">16:42:01 </span><span class="t-info">[ALERT]  </span>payments-svc error rate 45%</div>
+        <div><span class="t-time">16:42:01 </span><span class="t-key">[AIC]    </span>Incident received → triaging...</div>
+        <div><span class="t-time">16:42:02 </span><span class="t-warn">[SEV]    </span>Classified → <span class="t-val">P1</span> · auto-execute: ON</div>
+        <div><span class="t-time">16:42:03 </span><span class="t-info">[DIAG]   </span>ECS tasks: 2/4 healthy ↓</div>
+        <div><span class="t-time">16:42:04 </span><span class="t-info">[DIAG]   </span>RDS connections: 487/500 ⚠</div>
+        <div><span class="t-time">16:42:05 </span><span class="t-info">[DIAG]   </span>CloudWatch: CPU 94% sustained</div>
+        <div><span class="t-time">16:42:06 </span><span class="t-warn">[BLAST]  </span>fraud-svc · checkout-svc affected</div>
+        <div><span class="t-time">16:42:07 </span><span class="t-key">[RAG]    </span>Matched incident #INC-2847 (RDS)</div>
+        <div><span class="t-time">16:42:08 </span><span class="t-success">[SLACK]  </span>Triage card → #incidents ✓</div>
+        <div><span class="t-time">16:42:09 </span><span class="t-success">[DONE]   </span>Complete in <span class="t-val">8.2s</span> · on-call notified <span class="cursor"></span></div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- STATS -->
-<div class="stats">
-  <div class="stat"><div class="stat-num">&lt;30s</div><div class="stat-label">Triage Time</div></div>
-  <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Autonomous</div></div>
-  <div class="stat"><div class="stat-num">35/35</div><div class="stat-label">Tests Passing</div></div>
-  <div class="stat"><div class="stat-num">P0→P3</div><div class="stat-label">Severity Routing</div></div>
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-label">Built for</div>
+  <div class="trust-items">
+    <div class="trust-item"><span class="check">✓</span> Regulated Industries</div>
+    <div class="trust-item"><span class="check">✓</span> AWS Native Deployment</div>
+    <div class="trust-item"><span class="check">✓</span> SOC2-Ready Architecture</div>
+    <div class="trust-item"><span class="check">✓</span> Multi-Tenant Isolation</div>
+    <div class="trust-item"><span class="check">✓</span> VPC Private Deployment</div>
+    <div class="trust-item"><span class="check">✓</span> Provisionally Patented</div>
+  </div>
 </div>
 
-<!-- TERMINAL -->
-<section class="terminal-section">
-  <div>
-    <div class="section-label">// How it works</div>
-    <h2 class="section-title">Alert in.<br>Resolution out.</h2>
-    <p class="section-desc">
-      AIC ingests alerts from CloudWatch, EventBridge, PagerDuty, or any webhook.
-      It classifies severity, runs AWS diagnostics, discovers blast radius,
-      and posts a structured resolution card to Slack — all before a human
-      would even open the alert.
-    </p>
+<!-- ROI STATS -->
+<section class="roi-section">
+  <div class="roi-header">
+    <div class="section-label">// Business impact</div>
+    <h2 class="section-title">Faster resolution.<br>Fewer escalations. Better reliability.</h2>
   </div>
-  <div class="terminal">
-    <div class="terminal-header">
-      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
-      <span class="terminal-title">aic-prod / live triage</span>
+  <div class="roi-grid">
+    <div class="roi-card">
+      <div class="roi-num">90%</div>
+      <div class="roi-desc">Faster mean time to triage vs industry average of 45 minutes for manual investigation</div>
     </div>
-    <div class="terminal-body">
-      <div><span class="t-time">16:42:01 </span><span class="t-info">[ALERT] </span>payments-svc error rate 45%</div>
-      <div><span class="t-time">16:42:01 </span><span class="t-key">[AIC]   </span>Incident received → triaging...</div>
-      <div><span class="t-time">16:42:02 </span><span class="t-warn">[SEV]   </span>Classified → <span class="t-val">P1</span></div>
-      <div><span class="t-time">16:42:03 </span><span class="t-info">[DIAG]  </span>Running AWS diagnostics...</div>
-      <div><span class="t-time">16:42:04 </span><span class="t-info">[DIAG]  </span>ECS tasks: 2/4 healthy</div>
-      <div><span class="t-time">16:42:05 </span><span class="t-info">[DIAG]  </span>RDS connections: 487/500</div>
-      <div><span class="t-time">16:42:06 </span><span class="t-warn">[BLAST] </span>fraud-svc, checkout-svc affected</div>
-      <div><span class="t-time">16:42:07 </span><span class="t-key">[RAG]   </span>Matched 3 similar incidents</div>
-      <div><span class="t-time">16:42:08 </span><span class="t-success">[SLACK] </span>Card posted → #incidents ✓</div>
-      <div><span class="t-time">16:42:09 </span><span class="t-success">[DONE]  </span>Triage complete in <span class="t-val">8.2s</span> <span class="cursor"></span></div>
+    <div class="roi-card">
+      <div class="roi-num">3am</div>
+      <div class="roi-desc">P2/P3 incidents resolved with full context before your team starts their day</div>
+    </div>
+    <div class="roi-card">
+      <div class="roi-num">24/7</div>
+      <div class="roi-desc">Consistent, always-on triage coverage that frees your engineers for high-value work</div>
+    </div>
+    <div class="roi-card">
+      <div class="roi-num">&lt;30s</div>
+      <div class="roi-desc">From alert received to structured resolution briefing in Slack or Teams</div>
     </div>
   </div>
+</section>
+
+
+<!-- SLACK CARDS -->
+<section class="slack-section" id="slack-demo">
+  <div class="slack-inner">
+    <div class="slack-header">
+      <div class="section-label">// Real output · Slack integration</div>
+      <h2 class="section-title">What your team sees in Slack</h2>
+      <p class="slack-subtitle">Every triage produces a structured card with AI summary, blast radius analysis, auto-executed AWS diagnostics, and one-click remediation actions — delivered in under 30 seconds.</p>
+    </div>
+
+    <div class="slack-tabs">
+      <button class="slack-tab active" onclick="showCard(0)">P1 Approval Card</button>
+      <button class="slack-tab" onclick="showCard(1)">Triage Summary</button>
+      <button class="slack-tab" onclick="showCard(2)">AWS Diagnostics</button>
+      <button class="slack-tab" onclick="showCard(3)">Remediation Steps</button>
+    </div>
+
+    <div class="slack-card-wrap active" id="card-0">
+      <div class="slack-window">
+        <div class="slack-topbar"><div class="slack-channel"># incidents</div><div class="slack-dots"><span></span><span></span><span></span></div></div>
+        <div class="slack-body">
+          <div class="slack-msg">
+            <div class="slack-avatar" style="background:#e01e5a;">AI</div>
+            <div class="slack-content">
+              <div class="slack-sender">AI Incident Commander <span class="slack-app">APP</span> <span class="slack-time">12:57 PM</span></div>
+              <div class="slack-card">
+                <div class="sc-header"><span class="sc-dot" style="background:#e01e5a;"></span><strong>P1 INCIDENT — APPROVAL REQUIRED</strong></div>
+                <div class="sc-body">
+                  <div class="sc-row">
+                    <div class="sc-field"><span class="sc-label">Alert:</span><span class="sc-val">Payment processing error rate elevated</span></div>
+                    <div class="sc-field"><span class="sc-label">Severity:</span><span class="sc-val sc-p1">P1</span></div>
+                  </div>
+                  <div class="sc-row">
+                    <div class="sc-field"><span class="sc-label">Risk Level:</span><span class="sc-val">HIGH</span></div>
+                    <div class="sc-field"><span class="sc-label">Approval ID:</span><span class="sc-tag">8a3f91bc</span></div>
+                  </div>
+                  <div class="sc-divider"></div>
+                  <div class="sc-label">🤖 AI Summary:</div>
+                  <div class="sc-text">This is a P1 revenue-impacting incident requiring immediate attention. The payments service is experiencing a sustained 45% error rate for 8 minutes, meaning nearly half of all customer payment transactions are currently failing. Elevated latency in fraud-svc is causing cascading timeouts in the payment authorization flow, with downstream impact to checkout-api, order-svc, and ledger-svc...</div>
+                  <div class="sc-divider"></div>
+                  <div class="sc-label">Blast Radius:</div>
+                  <div class="sc-blast">
+                    <div>• Primary: <span class="sc-tag">payments-svc</span></div>
+                    <div>• Downstream: <span class="sc-tag">checkout-api</span> <span class="sc-tag">order-svc</span> <span class="sc-tag">fraud-svc</span> <span class="sc-tag">ledger-svc</span></div>
+                    <div>• User Impact: ~40% of checkout flows affected — payment processing degraded</div>
+                  </div>
+                  <div class="sc-divider"></div>
+                  <div class="sc-label">Proposed Action:</div>
+                  <div class="sc-action-tag">Scale ECS payments-svc on prod-cluster: 2 → 4 tasks</div>
+                  <div class="sc-action-meta">Reversible: ✅ &nbsp;|&nbsp; Risk: HIGH</div>
+                </div>
+                <div class="sc-buttons">
+                  <button class="sc-btn sc-approve">✅ APPROVE</button>
+                  <button class="sc-btn sc-reject">❌ REJECT</button>
+                  <button class="sc-btn sc-investigate">🔍 INVESTIGATE</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slack-card-wrap" id="card-1">
+      <div class="slack-window">
+        <div class="slack-topbar"><div class="slack-channel"># incidents</div><div class="slack-dots"><span></span><span></span><span></span></div></div>
+        <div class="slack-body">
+          <div class="slack-msg">
+            <div class="slack-avatar" style="background:#4a154b;">AI</div>
+            <div class="slack-content">
+              <div class="slack-sender">AI Incident Commander <span class="slack-app">APP</span> <span class="slack-time">12:58 PM</span></div>
+              <div class="slack-card">
+                <div class="sc-header"><span class="sc-dot" style="background:#e01e5a;"></span><strong>[P1] AI Incident Triage — SHADOW MODE</strong></div>
+                <div class="sc-body">
+                  <div class="sc-field"><span class="sc-label">Alert:</span><span class="sc-val">Payment processing error rate elevated</span></div>
+                  <div class="sc-row" style="margin-top:8px;">
+                    <div class="sc-field"><span class="sc-label">Severity:</span><span class="sc-val sc-p1">P1</span></div>
+                    <div class="sc-field"><span class="sc-label">Confidence:</span><span class="sc-val sc-green">85%</span></div>
+                  </div>
+                  <div class="sc-row">
+                    <div class="sc-field"><span class="sc-label">Incident ID:</span><span class="sc-val">inc-a1b2c3d4</span></div>
+                    <div class="sc-field"><span class="sc-label">Affected:</span><span class="sc-val">payments-svc, fraud-svc</span></div>
+                  </div>
+                  <div class="sc-divider"></div>
+                  <div class="sc-label">🧠 Root Cause Hypothesis:</div>
+                  <div class="sc-text">fraud-svc latency degradation is causing cascading timeouts in payments-svc authorization flow, resulting in 45% payment transaction failures. Likely causes: fraud-svc performance bottleneck, retry amplification between services, or circuit breaker misconfiguration failing to isolate the degraded dependency.</div>
+                  <div class="sc-divider"></div>
+                  <div class="sc-label">💥 Blast Radius:</div>
+                  <div class="sc-text">Revenue-impacting incident affecting approximately 45% of customer payment transactions. All customers attempting to make payments during the 8-minute window are experiencing failures. This directly impacts checkout completion, subscription renewals, and any revenue-generating transactions flowing through the payments service.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slack-card-wrap" id="card-2">
+      <div class="slack-window">
+        <div class="slack-topbar"><div class="slack-channel"># incidents</div><div class="slack-dots"><span></span><span></span><span></span></div></div>
+        <div class="slack-body">
+          <div class="slack-msg">
+            <div class="slack-avatar" style="background:#2eb67d;">AI</div>
+            <div class="slack-content">
+              <div class="slack-sender">AI Incident Commander <span class="slack-app">APP</span> <span class="slack-time">12:58 PM</span></div>
+              <div class="slack-card">
+                <div class="sc-header"><strong>🔍 AUTO-EXECUTED DIAGNOSTICS — ✅ 2 pass · ❌ 1 fail · ⚠️ 1 warn</strong></div>
+                <div class="sc-body">
+                  <div class="sc-diag-item">
+                    <div class="sc-diag-title">✅ Check AWS Health for regional outages affecting payments <span class="sc-ms">87ms</span></div>
+                    <div class="sc-code">aws health describe-events --filter eventStatusCodes=open --region us-east-1</div>
+                    <div class="sc-diag-result sc-green-text">Actual: No active AWS health events in us-east-1 — regional outage ruled out. Issue is service-specific.</div>
+                  </div>
+                  <div class="sc-diag-item">
+                    <div class="sc-diag-title">❌ Confirm payments-svc CPU and error rates <span class="sc-ms">44ms</span></div>
+                    <div class="sc-code">aws cloudwatch get-metric-statistics --namespace AWS/ECS --metric-name CPUUtilization --dimensions Name=ServiceName,Value=payments-svc Name=ClusterName,Value=prod-cluster --period 60 --statistics Average,Maximum --region us-east-1</div>
+                    <div class="sc-diag-result sc-warn-text">Actual: CPUUtilization Average=94.3% Maximum=98.7% — CPU critically elevated. Service under severe load, likely causing request timeouts and cascading failures to fraud-svc dependency.</div>
+                  </div>
+                  <div class="sc-diag-item">
+                    <div class="sc-diag-title">✅ Check ECS service task health and running count <span class="sc-ms">108ms</span></div>
+                    <div class="sc-code">aws ecs describe-services --cluster prod-cluster --services payments-svc --region us-east-1</div>
+                    <div class="sc-diag-result sc-green-text">Actual: service=payments-svc  status=ACTIVE  running=2  desired=4  pending=0</div>
+                  </div>
+                  <div class="sc-diag-item">
+                    <div class="sc-diag-title">⚠️ Check ALB target health for payments-svc <span class="sc-ms">52ms</span></div>
+                    <div class="sc-code">aws elbv2 describe-target-health --target-group-arn arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/payments-svc/tg-0a1b2c3d4e5f6789</div>
+                    <div class="sc-diag-result sc-warn-text">Actual: 2 targets healthy, 2 targets draining — target group degraded. Healthy threshold not met. ALB routing traffic to reduced capacity.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slack-card-wrap" id="card-3">
+      <div class="slack-window">
+        <div class="slack-topbar"><div class="slack-channel"># incidents</div><div class="slack-dots"><span></span><span></span><span></span></div></div>
+        <div class="slack-body">
+          <div class="slack-msg">
+            <div class="slack-avatar" style="background:#e01e5a;">AI</div>
+            <div class="slack-content">
+              <div class="slack-sender">AI Incident Commander <span class="slack-app">APP</span> <span class="slack-time">12:59 PM</span></div>
+              <div class="slack-card">
+                <div class="sc-header"><strong>🔧 REMEDIATION STEPS (pending approval)</strong></div>
+                <div class="sc-body">
+                  <div class="sc-rem-item">
+                    <div class="sc-rem-title">🔧 1. Increase ECS task count to reduce per-task load</div>
+                    <div class="sc-code">aws ecs update-service --cluster prod-cluster --service payments-svc --desired-count 4 --region us-east-1</div>
+                  </div>
+                  <div class="sc-rem-item">
+                    <div class="sc-rem-title">🔧 2. Force restart of payments-svc tasks to clear hung connections</div>
+                    <div class="sc-code">aws ecs update-service --cluster prod-cluster --service payments-svc --force-new-deployment --region us-east-1</div>
+                  </div>
+                  <div class="sc-rem-item">
+                    <div class="sc-rem-title">🔧 3. Drain and rebalance queue to retry failed transactions</div>
+                    <div class="sc-code">aws sqs purge-queue --queue-url https://sqs.us-east-1.amazonaws.com/123456789012/payments-svc-queue</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="how-inner">
+    <div class="how-header">
+      <div class="section-label">// How it works</div>
+      <h2 class="section-title">Three steps. Full context delivered instantly.</h2>
+    </div>
+    <div class="how-steps">
+      <div class="step">
+        <div class="step-num">// STEP 01</div>
+        <div class="step-title">Alert Ingested</div>
+        <div class="step-desc">AIC receives alerts from CloudWatch, EventBridge, PagerDuty, Catchpoint, or any webhook endpoint. No per-alert configuration needed. Multi-tenant isolation ensures each customer only sees their own data.</div>
+        <div class="step-time">→ t+0s</div>
+      </div>
+      <div class="step">
+        <div class="step-num">// STEP 02</div>
+        <div class="step-title">Autonomous Triage</div>
+        <div class="step-desc">Claude AI on AWS Bedrock classifies severity P0–P3, executes real AWS diagnostic commands (ECS, RDS, CloudWatch, VPC Reachability), discovers blast radius, and cross-references against historical incidents via self-learning RAG.</div>
+        <div class="step-time">→ t+1s to t+8s</div>
+      </div>
+      <div class="step">
+        <div class="step-num">// STEP 03</div>
+        <div class="step-title">Resolution Card Delivered</div>
+        <div class="step-desc">A structured card with real diagnostic output, affected services, severity classification, historical context, and recommended runbook actions is posted to Slack or Teams. Your team gets context, not noise.</div>
+        <div class="step-time">→ t+8s to t+30s</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO -->
+<section class="video-section" id="demo">
+  <div class="video-header">
+    <div class="section-label">// Product demo</div>
+    <h2 class="section-title">Watch AIC triage a live P1 incident</h2>
+  </div>
+  <div class="video-wrapper">
+    <div class="video-inner">
+      <div class="video-bg-lines">
+        <div class="vl c1">16:42:01 [ALERT]  payments-svc error rate 45% — threshold exceeded</div>
+        <div class="vl c1">16:42:01 [AIC]    Incident received → classifying severity...</div>
+        <div class="vl c2">16:42:02 [SEV]    Classified → P1 | blast radius analysis starting</div>
+        <div class="vl c1">16:42:03 [DIAG]   Running: ecs describe-tasks, rds describe-instances...</div>
+        <div class="vl c1">16:42:05 [DIAG]   ECS: 2/4 tasks healthy | RDS: 487/500 connections</div>
+        <div class="vl c2">16:42:06 [BLAST]  fraud-svc, checkout-svc affected → escalating</div>
+        <div class="vl c3">16:42:08 [SLACK]  Triage card posted → #incidents ✓ — 8.2s total</div>
+      </div>
+      <div class="play-circle">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M10 7L22 14L10 21V7Z" fill="#060912"/>
+        </svg>
+      </div>
+      <div class="play-label">Demo video · 3 minutes</div>
+    </div>
+  </div>
+  <div class="video-caption">Video coming soon · <a href="mailto:info@incidentai.io">Request a live walkthrough with your own AWS environment →</a></div>
 </section>
 
 <!-- FEATURES -->
-<section class="features">
+<section class="features-section" id="features">
   <div class="features-inner">
     <div class="features-header">
       <div class="section-label">// Capabilities</div>
-      <h2 class="section-title" style="font-size:2.2rem;">Everything your on-call team needs.<br>Automated.</h2>
+      <h2 class="section-title">Complete context delivered before<br>your team assembles.</h2>
     </div>
     <div class="features-grid">
       <div class="feature">
@@ -240,8 +689,16 @@
           <line x1="31" y1="22" x2="40" y2="22" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
           <polygon points="25,14 19,23 22,23 18,31 26,21 23,21" fill="#00d4ff"/>
         </svg>
-        <div class="feature-title">Autonomous Triage</div>
-        <div class="feature-desc">P0–P3 severity classification in under 30 seconds. No human required for initial assessment.</div>
+        <div class="feature-title">Autonomous P0–P3 Triage</div>
+        <div class="feature-desc">Severity classification in under 30 seconds. Maintenance windows, dedup logic, and approval gates ensure your team gets precisely the right alerts at the right time.</div>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
+          <rect x="6" y="10" width="32" height="24" rx="3" stroke="#00d4ff" stroke-width="1.5"/>
+          <path d="M12 22 L16 18 L20 26 L24 16 L28 22 L32 22" fill="none" stroke="#00ff9d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="feature-title">Real AWS Diagnostics</div>
+        <div class="feature-desc">Executes actual AWS CLI commands — ECS task health, RDS connection counts, CloudWatch metrics, VPC Reachability Analyzer. Raw output, not summaries.</div>
       </div>
       <div class="feature">
         <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
@@ -249,125 +706,326 @@
           <rect x="24" y="8" width="12" height="12" rx="2" stroke="#ff6b35" stroke-width="1.5"/>
           <rect x="8" y="24" width="12" height="12" rx="2" stroke="#ff6b35" stroke-width="1.5"/>
           <rect x="24" y="24" width="12" height="12" rx="2" stroke="#00d4ff" stroke-width="1.5"/>
+          <line x1="20" y1="14" x2="24" y2="14" stroke="#6b8aad" stroke-width="1" stroke-dasharray="2 2"/>
+          <line x1="14" y1="20" x2="14" y2="24" stroke="#6b8aad" stroke-width="1" stroke-dasharray="2 2"/>
         </svg>
         <div class="feature-title">Blast Radius Detection</div>
-        <div class="feature-desc">Auto-discovers service dependencies. Knows which services are affected before you ask.</div>
+        <div class="feature-desc">Auto-discovers service dependencies through live traffic analysis. Knows which downstream services are impacted before your team has assembled.</div>
       </div>
       <div class="feature">
         <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
-          <path d="M8 36 L8 20 L16 20 L16 36" stroke="#00d4ff" stroke-width="1.5"/>
-          <path d="M18 36 L18 14 L26 14 L26 36" stroke="#00d4ff" stroke-width="1.5"/>
-          <path d="M28 36 L28 8 L36 8 L36 36" stroke="#00ff9d" stroke-width="1.5"/>
+          <path d="M8 36 L8 22 L16 22 L16 36" stroke="#00d4ff" stroke-width="1.5"/>
+          <path d="M18 36 L18 16 L26 16 L26 36" stroke="#00d4ff" stroke-width="1.5"/>
+          <path d="M28 36 L28 10 L36 10 L36 36" stroke="#00ff9d" stroke-width="1.5"/>
+          <line x1="6" y1="36" x2="38" y2="36" stroke="#1a2a4a" stroke-width="1"/>
         </svg>
         <div class="feature-title">Self-Learning RAG</div>
-        <div class="feature-desc">Learns from every incident. Gets smarter with each triage. Matches patterns from your history.</div>
+        <div class="feature-desc">Vector database of your incident history. Every new incident is compared against past resolutions. Gets smarter with every triage — no retraining required.</div>
       </div>
       <div class="feature">
         <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
-          <rect x="6" y="12" width="32" height="20" rx="3" stroke="#00d4ff" stroke-width="1.5"/>
-          <path d="M14 20 L20 26 L30 18" stroke="#00ff9d" stroke-width="2" stroke-linecap="round"/>
+          <rect x="4" y="8" width="36" height="28" rx="3" stroke="#00d4ff" stroke-width="1.5"/>
+          <line x1="4" y1="16" x2="40" y2="16" stroke="#1a2a4a" stroke-width="1"/>
+          <circle cx="10" cy="12" r="2" fill="#ff5f57"/>
+          <circle cx="17" cy="12" r="2" fill="#febc2e"/>
+          <circle cx="24" cy="12" r="2" fill="#28c840"/>
+          <path d="M10 24 L14 28 L24 20" stroke="#00ff9d" stroke-width="1.8" stroke-linecap="round"/>
+          <rect x="28" y="21" width="8" height="4" rx="1" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+          <rect x="28" y="27" width="8" height="4" rx="1" stroke="#00d4ff" stroke-width="1" opacity="0.3"/>
         </svg>
-        <div class="feature-title">AWS Diagnostics</div>
-        <div class="feature-desc">Real AWS output — ECS, RDS, CloudWatch, VPC Reachability — executed automatically.</div>
+        <div class="feature-title">Slack & Teams Cards</div>
+        <div class="feature-desc">Rich structured cards with severity, affected services, diagnostic output, historical context, and runbook links. Routable to multiple channels by severity.</div>
       </div>
       <div class="feature">
         <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
-          <path d="M22 8 L36 28 L8 28 Z" stroke="#00d4ff" stroke-width="1.5" fill="none"/>
-          <path d="M22 18 L22 24 M22 26 L22 27" stroke="#ff6b35" stroke-width="2" stroke-linecap="round"/>
+          <rect x="8" y="8" width="28" height="28" rx="4" stroke="#00d4ff" stroke-width="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1" stroke="#00d4ff" stroke-width="1"/>
+          <rect x="23" y="14" width="7" height="7" rx="1" stroke="#ff6b35" stroke-width="1"/>
+          <rect x="14" y="23" width="7" height="7" rx="1" stroke="#ff6b35" stroke-width="1"/>
+          <rect x="23" y="23" width="7" height="7" rx="1" stroke="#00d4ff" stroke-width="1"/>
         </svg>
         <div class="feature-title">Multi-Tenant Isolation</div>
-        <div class="feature-desc">Enterprise-grade tenant isolation. Each customer sees only their incidents. SOC2-ready.</div>
-      </div>
-      <div class="feature">
-        <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
-          <circle cx="22" cy="22" r="14" stroke="#00d4ff" stroke-width="1.5"/>
-          <path d="M22 14 L22 22 L28 22" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <div class="feature-title">Slack & Teams Alerts</div>
-        <div class="feature-desc">Structured triage cards posted to Slack or Teams. Rich context, one-click runbooks.</div>
+        <div class="feature-desc">Strict tenant isolation at every layer — API key, database query, and data store. Designed for MSPs and enterprise teams managing multiple environments.</div>
       </div>
     </div>
   </div>
+</section>
+
+<!-- INTEGRATIONS -->
+<div class="integrations">
+  <h3>Integrates with your existing stack</h3>
+  <div class="integration-grid">
+    <div class="integration-pill">AWS CloudWatch</div>
+    <div class="integration-pill">AWS EventBridge</div>
+    <div class="integration-pill">AWS ECS</div>
+    <div class="integration-pill">AWS RDS</div>
+    <div class="integration-pill">AWS Bedrock</div>
+    <div class="integration-pill">Slack</div>
+    <div class="integration-pill">Microsoft Teams</div>
+    <div class="integration-pill">PagerDuty</div>
+    <div class="integration-pill">Catchpoint</div>
+    <div class="integration-pill">Splunk</div>
+    <div class="integration-pill">AWS SNS</div>
+    <div class="integration-pill">CloudTrail</div>
+    <div class="integration-pill">VPC Reachability</div>
+    <div class="integration-pill">AWS SES</div>
+  </div>
+</div>
+
+<!-- WHY AIC -->
+<section class="why-section">
+  <div class="why-header">
+    <div class="section-label">// Competitive advantage</div>
+    <h2 class="section-title">AIC vs traditional observability & alerting platforms</h2>
+  </div>
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th class="highlight">AIC</th>
+        <th>On-Call Platforms</th>
+        <th>Observability Tools</th>
+        <th>ITSM Platforms</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="feature-name">Autonomous incident triage</td>
+        <td class="aic">✓ Full</td>
+        <td class="no">Alert routing only</td>
+        <td class="no">Detection only</td>
+        <td class="no">Ticket creation</td>
+      </tr>
+      <tr>
+        <td class="feature-name">Real AWS diagnostic execution</td>
+        <td class="aic">✓ Native</td>
+        <td class="no">✗</td>
+        <td class="no">Metrics only</td>
+        <td class="no">✗</td>
+      </tr>
+      <tr>
+        <td class="feature-name">Self-learning from incident history</td>
+        <td class="aic">✓ Built-in RAG</td>
+        <td class="no">Limited</td>
+        <td class="no">Limited</td>
+        <td class="no">Manual KB</td>
+      </tr>
+      <tr>
+        <td class="feature-name">AWS Marketplace deployment</td>
+        <td class="aic">✓ Native</td>
+        <td class="no">✗</td>
+        <td class="no">✗</td>
+        <td class="no">✗</td>
+      </tr>
+      <tr>
+        <td class="feature-name">VPC private deployment</td>
+        <td class="aic">✓ Available</td>
+        <td class="no">✗</td>
+        <td class="no">Partial</td>
+        <td class="no">✗</td>
+      </tr>
+      <tr>
+        <td class="feature-name">Flat monthly pricing</td>
+        <td class="aic">✓ No per-seat</td>
+        <td class="no">Per seat / per user</td>
+        <td class="no">Per host / per GB</td>
+        <td class="no">Per agent</td>
+      </tr>
+      <tr>
+        <td class="feature-name">Built for regulated industries</td>
+        <td class="aic">✓ Core focus</td>
+        <td class="no">General purpose</td>
+        <td class="no">General purpose</td>
+        <td class="no">Partial</td>
+      </tr>
+    </tbody>
+  </table>
 </section>
 
 <!-- PRICING -->
-<section class="pricing">
-  <div class="pricing-header">
-    <div class="section-label">// Pricing</div>
-    <h2 class="section-title" style="font-size:2.2rem; text-align:center;">Simple, transparent pricing.</h2>
-  </div>
-  <div class="pricing-grid">
-    <div class="plan">
-      <div class="plan-name">Starter</div>
-      <div class="plan-price">$2,500</div>
-      <div class="plan-period">/month · up to 1,000 incidents</div>
-      <ul class="plan-features">
-        <li>Autonomous P0–P3 triage</li>
-        <li>AWS diagnostics</li>
-        <li>Slack notifications</li>
-        <li>Single tenant</li>
-        <li>Email support</li>
-      </ul>
-      <a href="mailto:suman.aic11@gmail.com" class="plan-cta">Get Started</a>
+<section class="pricing-section" id="pricing">
+  <div class="pricing-inner">
+    <div class="pricing-header">
+      <div class="section-label">// Pricing</div>
+      <h2 class="section-title">Flat pricing. No per-seat surprises.</h2>
     </div>
-    <div class="plan featured">
-      <div class="plan-badge">MOST POPULAR</div>
-      <div class="plan-name">Professional</div>
-      <div class="plan-price">$8,000</div>
-      <div class="plan-period">/month · up to 10,000 incidents</div>
-      <ul class="plan-features">
-        <li>Everything in Starter</li>
-        <li>Self-learning RAG</li>
-        <li>Blast radius detection</li>
-        <li>Slack + Teams + Email</li>
-        <li>Priority support</li>
-      </ul>
-      <a href="mailto:suman.aic11@gmail.com" class="plan-cta">Get Started</a>
+    <div class="pricing-grid">
+      <div class="plan">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">$2,500</div>
+        <div class="plan-period">/month · up to 1,000 incidents</div>
+        <ul class="plan-features">
+          <li>Autonomous P0–P3 triage</li>
+          <li>Real AWS diagnostics</li>
+          <li>Slack notifications</li>
+          <li>Single tenant</li>
+          <li>Self-learning RAG</li>
+          <li>Email support</li>
+        </ul>
+        <a href="mailto:info@incidentai.io" class="plan-cta">Get Started</a>
+      </div>
+      <div class="plan featured">
+        <div class="plan-badge">MOST POPULAR</div>
+        <div class="plan-name">Professional</div>
+        <div class="plan-price">$8,000</div>
+        <div class="plan-period">/month · up to 10,000 incidents</div>
+        <ul class="plan-features">
+          <li>Everything in Starter</li>
+          <li>Blast radius detection</li>
+          <li>Slack + Teams + Email</li>
+          <li>Multi-tenant isolation</li>
+          <li>Dependency learning</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="mailto:info@incidentai.io" class="plan-cta">Get Started</a>
+      </div>
+      <div class="plan">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price">$25K+</div>
+        <div class="plan-period">/month · unlimited incidents</div>
+        <ul class="plan-features">
+          <li>Everything in Professional</li>
+          <li>VPC private deployment</li>
+          <li>CloudFormation template</li>
+          <li>Custom integrations</li>
+          <li>Dedicated SRE support</li>
+          <li>SLA guarantee</li>
+        </ul>
+        <a href="mailto:info@incidentai.io" class="plan-cta">Contact Sales</a>
+      </div>
     </div>
-    <div class="plan">
-      <div class="plan-name">Enterprise</div>
-      <div class="plan-price">$25K+</div>
-      <div class="plan-period">/month · unlimited incidents</div>
-      <ul class="plan-features">
-        <li>Everything in Professional</li>
-        <li>Multi-tenant isolation</li>
-        <li>VPC deployment</li>
-        <li>Custom integrations</li>
-        <li>Dedicated SRE support</li>
-      </ul>
-      <a href="mailto:suman.aic11@gmail.com" class="plan-cta">Contact Sales</a>
-    </div>
+    <div class="pricing-note">All plans available as SaaS or CloudFormation VPC deployment · No per-seat pricing · Cancel anytime · AWS Marketplace billing available</div>
   </div>
 </section>
 
-<!-- AWS -->
-<div class="aws-section">
-  <div class="aws-badge">
-    <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-      <text x="0" y="18" fill="#FF9900" font-family="Arial" font-size="14" font-weight="bold">aws</text>
-    </svg>
-    Available on AWS Marketplace · Seller Registration Active
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="faq-header">
+    <div class="section-label">// FAQ</div>
+    <h2 class="section-title">Common questions</h2>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">How does AIC complement our existing alerting stack?</div>
+    <div class="faq-a">AIC works alongside your existing on-call and observability platforms — it doesn't replace them. Where your current tools detect anomalies and route alerts, AIC adds an autonomous triage layer that investigates, diagnoses, and delivers a complete resolution briefing to your team before they begin manual investigation. Think of AIC as giving your engineers a fully prepared incident brief the moment they pick up an alert.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Does AIC work with our existing monitoring and alerting tools?</div>
+    <div class="faq-a">Yes. AIC ingests webhooks from on-call platforms, observability tools, and monitoring systems via standard HTTP webhooks. You don't need to replace your existing alerting infrastructure — AIC sits alongside it as the autonomous triage and investigation layer that enriches every alert with full diagnostic context before your team engages.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Is 30 seconds realistic for enterprise-scale incidents?</div>
+    <div class="faq-a">Yes. The 30-second figure is for the full triage cycle: alert ingestion → severity classification → AWS diagnostic execution → blast radius detection → RAG historical matching → Slack/Teams card delivery. We've validated this consistently in production across P0 through P3 incidents. The actual diagnostic execution time varies by incident complexity, but the structured card is always delivered within 30 seconds.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">How does AIC handle P0 critical incidents?</div>
+    <div class="faq-a">P0 incidents trigger an approval gate by default — AIC performs full triage and diagnostics, posts the card, and notifies on-call via Slack, Teams, and SES email simultaneously. Auto-remediation for P0 requires explicit approval. P1/P2/P3 incidents are handled fully autonomously. All thresholds are configurable via the Admin Config API without redeployment.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Can AIC be deployed in our private VPC?</div>
+    <div class="faq-a">Yes. Enterprise plan customers receive a CloudFormation template that deploys AIC entirely within your AWS VPC — no data leaves your environment. The template provisions ECS, RDS (PostgreSQL + pgvector), Redis, ALB, and all supporting infrastructure. Deployment takes under 15 minutes.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">What AWS services does AIC diagnostic runner cover?</div>
+    <div class="faq-a">AIC currently executes diagnostics for ECS (task health, service status), RDS (connection counts, Multi-AZ status, failover), CloudWatch (metrics, alarms), VPC Reachability Analyzer, CloudTrail (recent API activity), and EC2 (security groups, network interfaces). Coverage expands based on customer requirements.</div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<div class="cta-banner">
+  <h2>Give your engineers the context<br>they need, instantly.</h2>
+  <p>Book a 30-minute live demo and see AIC deliver a complete incident briefing in your AWS environment.</p>
+  <div class="cta-group">
+    <a href="mailto:info@incidentai.io" class="cta-primary">Book a Demo →</a>
+    <a href="mailto:info@incidentai.io" class="cta-secondary">info@incidentai.io</a>
+  </div>
+</div>
+
+<!-- TRUST BADGES -->
+<div class="trust-badges">
+  <div class="tbadge">
+    <svg width="18" height="12" viewBox="0 0 50 20"><text x="0" y="16" fill="#FF9900" font-family="Arial" font-size="16" font-weight="bold">aws</text></svg>
+    Available on <span class="tval">AWS Marketplace</span>
+  </div>
+  <div class="tbadge">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#00d4ff" stroke-width="1.2"/><path d="M5 8 L7 10 L11 6" stroke="#00d4ff" stroke-width="1.2" stroke-linecap="round"/></svg>
+    Provisional Patent <span class="tval">US 64/033,032</span>
+  </div>
+  <div class="tbadge">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 5V9C14 12 11 14.5 8 15C5 14.5 2 12 2 9V5L8 2Z" stroke="#00d4ff" stroke-width="1.2"/></svg>
+    <span class="tval">SOC2-Ready</span> Architecture
+  </div>
+  <div class="tbadge">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#00d4ff" stroke-width="1.2"/><path d="M5 8 L7 10 L11 6" stroke="#00ff9d" stroke-width="1.2" stroke-linecap="round"/></svg>
+    Production <span class="tval">Validated</span>
   </div>
 </div>
 
 <!-- FOOTER -->
 <footer>
-  <div class="logo" style="font-size:0.9rem;">
-    <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
-      <rect width="36" height="36" rx="6" fill="#060d1f"/>
-      <circle cx="18" cy="18" r="13" fill="none" stroke="#00d4ff" stroke-width="1.8"/>
-      <circle cx="18" cy="18" r="9" fill="none" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3 2"/>
-      <line x1="18" y1="5" x2="18" y2="11" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
-      <line x1="18" y1="25" x2="18" y2="31" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
-      <line x1="5" y1="18" x2="11" y2="18" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
-      <line x1="25" y1="18" x2="31" y2="18" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
-      <polygon points="21,11 15,19 18,19 14,26 22,17 19,17" fill="#00d4ff"/>
-    </svg>
-    AI Incident Commander
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <svg width="24" height="24" viewBox="0 0 36 36" fill="none">
+          <rect width="36" height="36" rx="6" fill="#060d1f"/>
+          <circle cx="18" cy="18" r="13" fill="none" stroke="#00d4ff" stroke-width="1.8"/>
+          <circle cx="18" cy="18" r="9" fill="none" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3 2"/>
+          <line x1="18" y1="5" x2="18" y2="11" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="18" y1="25" x2="18" y2="31" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="5" y1="18" x2="11" y2="18" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+          <line x1="25" y1="18" x2="31" y2="18" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+          <polygon points="21,11 15,19 18,19 14,26 22,17 19,17" fill="#00d4ff"/>
+        </svg>
+        AI Incident Commander
+      </div>
+      <div class="footer-tagline">Autonomous incident triage for regulated industries.<br>Built on AWS. Available on AWS Marketplace.</div>
+      <a href="mailto:info@incidentai.io" class="footer-contact">info@incidentai.io</a>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#demo">Demo</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="mailto:info@incidentai.io">About</a>
+      <a href="mailto:info@incidentai.io">Contact</a>
+      <a href="mailto:info@incidentai.io">Careers</a>
+      <a href="mailto:info@incidentai.io">Press</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="mailto:info@incidentai.io">Privacy Policy</a>
+      <a href="mailto:info@incidentai.io">Terms of Service</a>
+      <a href="mailto:info@incidentai.io">Security</a>
+      <a href="mailto:info@incidentai.io">Compliance</a>
+    </div>
   </div>
-  <div class="footer-text">© 2026 NovaAI Technologies LLC · suman.aic11@gmail.com · 571-375-8918</div>
-  <div class="footer-text">Provisional Patent US 64/033,032</div>
+  <div class="footer-bottom">
+    <div class="footer-text">© 2026 NovaAI Technologies LLC · All rights reserved</div>
+    <div class="footer-text">Provisional Patent US 64/033,032 · incidentai.io</div>
+    <div class="footer-text">info@incidentai.io</div>
+  </div>
 </footer>
+
+<script>
+  // FAQ toggle already handled inline
+  // Smooth scroll for nav links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({behavior:'smooth', block:'start'}); }
+    });
+  });
+
+  function showCard(n) {
+    document.querySelectorAll('.slack-card-wrap').forEach((c,i) => c.classList.toggle('active', i===n));
+    document.querySelectorAll('.slack-tab').forEach((t,i) => t.classList.toggle('active', i===n));
+  }
+
+</script>
 
 </body>
 </html>
