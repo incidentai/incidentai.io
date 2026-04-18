@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Incident Commander — Autonomous Triage in Under 30 Seconds</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060912;
+    --surface: #0d1526;
+    --border: #1a2a4a;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --text: #e8f0fe;
+    --muted: #6b8aad;
+    --green: #00ff9d;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px; pointer-events: none; z-index: 0;
+  }
+  .orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
+  .orb-1 { width: 600px; height: 600px; background: rgba(0,212,255,0.06); top: -200px; right: -100px; }
+  .orb-2 { width: 400px; height: 400px; background: rgba(255,107,53,0.05); bottom: 100px; left: -100px; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 60px; background: rgba(6,9,18,0.8); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; }
+  .nav-cta {
+    background: var(--accent); color: var(--bg); padding: 10px 24px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 500;
+    text-decoration: none; letter-spacing: 0.05em; transition: all 0.2s;
+  }
+  .nav-cta:hover { background: #33ddff; transform: translateY(-1px); }
+
+  .hero {
+    position: relative; z-index: 1; min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 120px 60px 80px; max-width: 1200px; margin: 0 auto;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
+    padding: 6px 16px; border-radius: 100px; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem; color: var(--accent); letter-spacing: 0.08em;
+    margin-bottom: 40px; width: fit-content; animation: fadeUp 0.6s ease both;
+  }
+  .badge::before { content: ''; width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+  h1 { font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 800; line-height: 1.0; letter-spacing: -0.04em; margin-bottom: 32px; animation: fadeUp 0.6s ease 0.1s both; }
+  h1 .highlight { color: var(--accent); }
+  h1 .highlight2 { color: var(--accent2); }
+  .hero-desc { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; color: var(--muted); max-width: 600px; line-height: 1.7; margin-bottom: 48px; font-weight: 300; animation: fadeUp 0.6s ease 0.2s both; }
+  .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; animation: fadeUp 0.6s ease 0.3s both; }
+  .cta-primary {
+    background: var(--accent); color: var(--bg); padding: 16px 36px; border-radius: 4px;
+    font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: all 0.2s;
+  }
+  .cta-primary:hover { background: #33ddff; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,0.3); }
+  .cta-secondary {
+    background: transparent; color: var(--text); padding: 16px 36px; border-radius: 4px;
+    font-weight: 600; font-size: 0.95rem; text-decoration: none; border: 1px solid var(--border); transition: all 0.2s;
+  }
+  .cta-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .stats { position: relative; z-index: 1; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); padding: 28px 60px; display: flex; justify-content: center; gap: 80px; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--accent); letter-spacing: -0.04em; line-height: 1; }
+  .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+
+  .terminal-section { position: relative; z-index: 1; padding: 100px 60px; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px; }
+  .section-title { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 24px; }
+  .section-desc { font-family: 'JetBrains Mono', monospace; color: var(--muted); line-height: 1.8; font-size: 0.9rem; font-weight: 300; margin-bottom: 32px; }
+  .terminal { background: #050810; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+  .terminal-header { background: var(--surface); padding: 12px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+  .terminal-title { font-size: 0.7rem; color: var(--muted); margin-left: 8px; letter-spacing: 0.05em; }
+  .terminal-body { padding: 20px; line-height: 1.8; }
+  .t-time { color: var(--muted); } .t-info { color: var(--accent); } .t-warn { color: var(--accent2); }
+  .t-success { color: var(--green); } .t-key { color: #c792ea; } .t-val { color: #ffcb6b; }
+  .cursor { display: inline-block; width: 8px; height: 14px; background: var(--accent); animation: blink 1s infinite; vertical-align: middle; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  .features { position: relative; z-index: 1; padding: 80px 60px; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .features-inner { max-width: 1200px; margin: 0 auto; }
+  .features-header { text-align: center; margin-bottom: 64px; }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .feature { padding: 40px; border: 1px solid var(--border); background: var(--bg); position: relative; overflow: hidden; transition: all 0.3s; }
+  .feature:hover { background: rgba(0,212,255,0.03); border-color: rgba(0,212,255,0.2); }
+  .feature::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); opacity: 0; transition: opacity 0.3s; }
+  .feature:hover::before { opacity: 1; }
+  .feature-icon { width: 44px; height: 44px; margin-bottom: 20px; }
+  .feature-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.02em; }
+  .feature-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--muted); line-height: 1.8; font-weight: 300; }
+
+  .pricing { position: relative; z-index: 1; padding: 100px 60px; max-width: 1200px; margin: 0 auto; }
+  .pricing-header { text-align: center; margin-bottom: 64px; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .plan { border: 1px solid var(--border); border-radius: 8px; padding: 40px; background: var(--surface); position: relative; transition: all 0.3s; }
+  .plan:hover { border-color: rgba(0,212,255,0.3); transform: translateY(-4px); }
+  .plan.featured { border-color: var(--accent); background: linear-gradient(135deg, rgba(0,212,255,0.05), var(--surface)); }
+  .plan-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--bg); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 500; letter-spacing: 0.1em; padding: 4px 16px; border-radius: 100px; white-space: nowrap; }
+  .plan-name { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 12px; }
+  .plan-price { font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1; margin-bottom: 4px; }
+  .plan-period { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); margin-bottom: 32px; }
+  .plan-features { list-style: none; margin-bottom: 36px; }
+  .plan-features li { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--muted); padding: 8px 0; border-bottom: 1px solid rgba(26,42,74,0.5); display: flex; align-items: center; gap: 10px; }
+  .plan-features li::before { content: '→'; color: var(--accent); flex-shrink: 0; }
+  .plan-cta { display: block; text-align: center; padding: 14px; border-radius: 4px; font-weight: 700; font-size: 0.9rem; text-decoration: none; transition: all 0.2s; border: 1px solid var(--border); color: var(--text); }
+  .plan.featured .plan-cta { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .plan-cta:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .aws-section { position: relative; z-index: 1; text-align: center; padding: 60px; border-top: 1px solid var(--border); background: var(--surface); }
+  .aws-badge { display: inline-flex; align-items: center; gap: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px 40px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--muted); }
+
+  footer { position: relative; z-index: 1; padding: 40px 60px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .footer-text { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .hero { padding: 100px 24px 60px; }
+    .terminal-section { grid-template-columns: 1fr; padding: 60px 24px; gap: 40px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .stats { padding: 24px; gap: 40px; }
+    footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <!-- Crosshair + Bolt logo -->
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="6" fill="#060d1f"/>
+      <circle cx="18" cy="18" r="13" fill="none" stroke="#00d4ff" stroke-width="1.8"/>
+      <circle cx="18" cy="18" r="9" fill="none" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3 2"/>
+      <line x1="18" y1="5" x2="18" y2="11" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="18" y1="25" x2="18" y2="31" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="5" y1="18" x2="11" y2="18" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="25" y1="18" x2="31" y2="18" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <polygon points="21,11 15,19 18,19 14,26 22,17 19,17" fill="#00d4ff"/>
+    </svg>
+    AI Incident Commander
+  </div>
+  <a href="mailto:suman.aic11@gmail.com" class="nav-cta">REQUEST DEMO →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">AWS MARKETPLACE · NOW AVAILABLE</div>
+  <h1>
+    Incidents triaged.<br>
+    <span class="highlight">Autonomously.</span><br>
+    <span class="highlight2">Under 30 seconds.</span>
+  </h1>
+  <p class="hero-desc">
+    AI Incident Commander detects, triages, and resolves production incidents
+    before your on-call engineer finishes reading the alert.
+    Built for regulated industries on AWS.
+  </p>
+  <div class="hero-ctas">
+    <a href="mailto:suman.aic11@gmail.com" class="cta-primary">Get Early Access →</a>
+    <a href="mailto:suman.aic11@gmail.com" class="cta-secondary">View on AWS Marketplace</a>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><div class="stat-num">&lt;30s</div><div class="stat-label">Triage Time</div></div>
+  <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Autonomous</div></div>
+  <div class="stat"><div class="stat-num">35/35</div><div class="stat-label">Tests Passing</div></div>
+  <div class="stat"><div class="stat-num">P0→P3</div><div class="stat-label">Severity Routing</div></div>
+</div>
+
+<!-- TERMINAL -->
+<section class="terminal-section">
+  <div>
+    <div class="section-label">// How it works</div>
+    <h2 class="section-title">Alert in.<br>Resolution out.</h2>
+    <p class="section-desc">
+      AIC ingests alerts from CloudWatch, EventBridge, PagerDuty, or any webhook.
+      It classifies severity, runs AWS diagnostics, discovers blast radius,
+      and posts a structured resolution card to Slack — all before a human
+      would even open the alert.
+    </p>
+  </div>
+  <div class="terminal">
+    <div class="terminal-header">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="terminal-title">aic-prod / live triage</span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="t-time">16:42:01 </span><span class="t-info">[ALERT] </span>payments-svc error rate 45%</div>
+      <div><span class="t-time">16:42:01 </span><span class="t-key">[AIC]   </span>Incident received → triaging...</div>
+      <div><span class="t-time">16:42:02 </span><span class="t-warn">[SEV]   </span>Classified → <span class="t-val">P1</span></div>
+      <div><span class="t-time">16:42:03 </span><span class="t-info">[DIAG]  </span>Running AWS diagnostics...</div>
+      <div><span class="t-time">16:42:04 </span><span class="t-info">[DIAG]  </span>ECS tasks: 2/4 healthy</div>
+      <div><span class="t-time">16:42:05 </span><span class="t-info">[DIAG]  </span>RDS connections: 487/500</div>
+      <div><span class="t-time">16:42:06 </span><span class="t-warn">[BLAST] </span>fraud-svc, checkout-svc affected</div>
+      <div><span class="t-time">16:42:07 </span><span class="t-key">[RAG]   </span>Matched 3 similar incidents</div>
+      <div><span class="t-time">16:42:08 </span><span class="t-success">[SLACK] </span>Card posted → #incidents ✓</div>
+      <div><span class="t-time">16:42:09 </span><span class="t-success">[DONE]  </span>Triage complete in <span class="t-val">8.2s</span> <span class="cursor"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="features-inner">
+    <div class="features-header">
+      <div class="section-label">// Capabilities</div>
+      <h2 class="section-title" style="font-size:2.2rem;">Everything your on-call team needs.<br>Automated.</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
+          <circle cx="22" cy="22" r="18" stroke="#00d4ff" stroke-width="1.5"/>
+          <circle cx="22" cy="22" r="12" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="4 2"/>
+          <line x1="22" y1="4" x2="22" y2="13" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="22" y1="31" x2="22" y2="40" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="4" y1="22" x2="13" y2="22" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="31" y1="22" x2="40" y2="22" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round"/>
+          <polygon points="25,14 19,23 22,23 18,31 26,21 23,21" fill="#00d4ff"/>
+        </svg>
+        <div class="feature-title">Autonomous Triage</div>
+        <div class="feature-desc">P0–P3 severity classification in under 30 seconds. No human required for initial assessment.</div>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
+          <rect x="8" y="8" width="12" height="12" rx="2" stroke="#00d4ff" stroke-width="1.5"/>
+          <rect x="24" y="8" width="12" height="12" rx="2" stroke="#ff6b35" stroke-width="1.5"/>
+          <rect x="8" y="24" width="12" height="12" rx="2" stroke="#ff6b35" stroke-width="1.5"/>
+          <rect x="24" y="24" width="12" height="12" rx="2" stroke="#00d4ff" stroke-width="1.5"/>
+        </svg>
+        <div class="feature-title">Blast Radius Detection</div>
+        <div class="feature-desc">Auto-discovers service dependencies. Knows which services are affected before you ask.</div>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
+          <path d="M8 36 L8 20 L16 20 L16 36" stroke="#00d4ff" stroke-width="1.5"/>
+          <path d="M18 36 L18 14 L26 14 L26 36" stroke="#00d4ff" stroke-width="1.5"/>
+          <path d="M28 36 L28 8 L36 8 L36 36" stroke="#00ff9d" stroke-width="1.5"/>
+        </svg>
+        <div class="feature-title">Self-Learning RAG</div>
+        <div class="feature-desc">Learns from every incident. Gets smarter with each triage. Matches patterns from your history.</div>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
+          <rect x="6" y="12" width="32" height="20" rx="3" stroke="#00d4ff" stroke-width="1.5"/>
+          <path d="M14 20 L20 26 L30 18" stroke="#00ff9d" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div class="feature-title">AWS Diagnostics</div>
+        <div class="feature-desc">Real AWS output — ECS, RDS, CloudWatch, VPC Reachability — executed automatically.</div>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
+          <path d="M22 8 L36 28 L8 28 Z" stroke="#00d4ff" stroke-width="1.5" fill="none"/>
+          <path d="M22 18 L22 24 M22 26 L22 27" stroke="#ff6b35" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div class="feature-title">Multi-Tenant Isolation</div>
+        <div class="feature-desc">Enterprise-grade tenant isolation. Each customer sees only their incidents. SOC2-ready.</div>
+      </div>
+      <div class="feature">
+        <svg class="feature-icon" viewBox="0 0 44 44" fill="none">
+          <circle cx="22" cy="22" r="14" stroke="#00d4ff" stroke-width="1.5"/>
+          <path d="M22 14 L22 22 L28 22" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div class="feature-title">Slack & Teams Alerts</div>
+        <div class="feature-desc">Structured triage cards posted to Slack or Teams. Rich context, one-click runbooks.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing">
+  <div class="pricing-header">
+    <div class="section-label">// Pricing</div>
+    <h2 class="section-title" style="font-size:2.2rem; text-align:center;">Simple, transparent pricing.</h2>
+  </div>
+  <div class="pricing-grid">
+    <div class="plan">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">$2,500</div>
+      <div class="plan-period">/month · up to 1,000 incidents</div>
+      <ul class="plan-features">
+        <li>Autonomous P0–P3 triage</li>
+        <li>AWS diagnostics</li>
+        <li>Slack notifications</li>
+        <li>Single tenant</li>
+        <li>Email support</li>
+      </ul>
+      <a href="mailto:suman.aic11@gmail.com" class="plan-cta">Get Started</a>
+    </div>
+    <div class="plan featured">
+      <div class="plan-badge">MOST POPULAR</div>
+      <div class="plan-name">Professional</div>
+      <div class="plan-price">$8,000</div>
+      <div class="plan-period">/month · up to 10,000 incidents</div>
+      <ul class="plan-features">
+        <li>Everything in Starter</li>
+        <li>Self-learning RAG</li>
+        <li>Blast radius detection</li>
+        <li>Slack + Teams + Email</li>
+        <li>Priority support</li>
+      </ul>
+      <a href="mailto:suman.aic11@gmail.com" class="plan-cta">Get Started</a>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price">$25K+</div>
+      <div class="plan-period">/month · unlimited incidents</div>
+      <ul class="plan-features">
+        <li>Everything in Professional</li>
+        <li>Multi-tenant isolation</li>
+        <li>VPC deployment</li>
+        <li>Custom integrations</li>
+        <li>Dedicated SRE support</li>
+      </ul>
+      <a href="mailto:suman.aic11@gmail.com" class="plan-cta">Contact Sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- AWS -->
+<div class="aws-section">
+  <div class="aws-badge">
+    <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+      <text x="0" y="18" fill="#FF9900" font-family="Arial" font-size="14" font-weight="bold">aws</text>
+    </svg>
+    Available on AWS Marketplace · Seller Registration Active
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo" style="font-size:0.9rem;">
+    <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="6" fill="#060d1f"/>
+      <circle cx="18" cy="18" r="13" fill="none" stroke="#00d4ff" stroke-width="1.8"/>
+      <circle cx="18" cy="18" r="9" fill="none" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3 2"/>
+      <line x1="18" y1="5" x2="18" y2="11" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="18" y1="25" x2="18" y2="31" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="5" y1="18" x2="11" y2="18" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="25" y1="18" x2="31" y2="18" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <polygon points="21,11 15,19 18,19 14,26 22,17 19,17" fill="#00d4ff"/>
+    </svg>
+    AI Incident Commander
+  </div>
+  <div class="footer-text">© 2026 NovaAI Technologies LLC · suman.aic11@gmail.com · 571-375-8918</div>
+  <div class="footer-text">Provisional Patent US 64/033,032</div>
+</footer>
+
+</body>
+</html>
