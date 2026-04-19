@@ -23,7 +23,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='6' fill='%23060d1f'/%3E%3Ccircle cx='18' cy='18' r='13' fill='none' stroke='%2300d4ff' stroke-width='1.8'/%3E%3Ccircle cx='18' cy='18' r='9' fill='none' stroke='%2300d4ff' stroke-width='0.7' stroke-dasharray='3 2'/%3E%3Cline x1='18' y1='5' x2='18' y2='11' stroke='%2300d4ff' stroke-width='1.8' stroke-linecap='round'/%3E%3Cline x1='18' y1='25' x2='18' y2='31' stroke='%2300d4ff' stroke-width='1.8' stroke-linecap='round'/%3E%3Cline x1='5' y1='18' x2='11' y2='18' stroke='%2300d4ff' stroke-width='1.8' stroke-linecap='round'/%3E%3Cline x1='25' y1='18' x2='31' y2='18' stroke='%2300d4ff' stroke-width='1.8' stroke-linecap='round'/%3E%3Cpolygon points='21,11 15,19 18,19 14,26 22,17 19,17' fill='%2300d4ff'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='6' fill='%23060d1f'/%3E%3Ccircle cx='18' cy='18' r='13' fill='none' stroke='%2300d4ff' stroke-width='1.8'/%3E%3Cpolygon points='21,11 15,19 18,19 14,26 22,17 19,17' fill='%2300d4ff'/%3E%3C/svg%3E">
 
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #060912;
@@ -37,7 +37,7 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; overflow-x: hidden; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
   body::before {
     content: ''; position: fixed; inset: 0;
     background-image: linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
@@ -78,7 +78,7 @@
   }
   .badge::before { content: ''; width: 5px; height: 5px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; flex-shrink: 0; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
-  h1 { font-size: clamp(2rem, 3.5vw, 3.2rem); font-weight: 800; line-height: 1.12; letter-spacing: -0.03em; margin-bottom: 20px; animation: fadeUp 0.5s ease 0.1s both; }
+  h1 { font-family: 'Syne', sans-serif; font-size: clamp(2rem, 3.5vw, 3.2rem); font-weight: 800; line-height: 1.12; letter-spacing: -0.03em; margin-bottom: 20px; animation: fadeUp 0.5s ease 0.1s both; }
   h1 em { font-style: normal; color: var(--accent); }
   h1 strong { color: var(--accent2); font-weight: 800; }
   .hero-oneliner { font-size: 1.05rem; color: var(--text); line-height: 1.5; margin-bottom: 20px; font-weight: 400; animation: fadeUp 0.5s ease 0.15s both; max-width: 520px; letter-spacing: -0.01em; }
@@ -164,7 +164,7 @@
   .roi-section { position: relative; z-index: 1; padding: 80px 60px; max-width: 1280px; margin: 0 auto; }
   .roi-header { text-align: center; margin-bottom: 56px; }
   .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 14px; }
-  .section-title { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; }
+  .section-title { font-family: 'Syne', sans-serif; font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; }
   .roi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
   .roi-card { padding: 36px 28px; background: var(--surface); border: 1px solid var(--border); text-align: center; transition: border-color 0.3s; }
   .roi-card:hover { border-color: rgba(0,212,255,0.2); }
@@ -468,11 +468,6 @@
     <div class="badge">NOW AVAILABLE ON AWS MARKETPLACE · PATENT PENDING</div>
     <h1>Your on-call team<br>gets <em>answers,</em><br><strong>not raw alerts.</strong></h1>
     <p class="hero-oneliner">AIC turns noisy production alerts into clear, actionable triage — delivered to Slack or Microsoft Teams in under 30 seconds.</p>
-    <p class="hero-desc">
-      Autonomous triage, blast radius mapping across dependent services, real AWS diagnostics,
-      and complete resolution briefings — with auto-resolution from your runbooks when configured.
-      Your engineers arrive with full context. Built for regulated industries on AWS.
-    </p>
     <div class="hero-ctas">
       <a href="contact.html" class="cta-primary">Book a Live Demo →</a>
       <a href="contact.html" class="cta-secondary">Talk to Sales</a>
@@ -604,6 +599,78 @@
   </div>
 </section>
 
+
+<!-- ARCHITECTURE FLOW -->
+<section style="position:relative; z-index:1; padding:80px 60px; max-width:1200px; margin:0 auto;">
+  <div style="text-align:center; margin-bottom:60px;">
+    <div class="section-label">// System architecture</div>
+    <h2 class="section-title">How AIC Works — End to End</h2>
+    <p style="color:var(--muted); font-size:0.9rem; max-width:600px; margin:20px auto 0;">Simple, secure, and fully auditable. Every stage logs to your infrastructure.</p>
+  </div>
+
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;">
+    
+    <!-- Alert Sources -->
+    <div style="flex:1; min-width:200px; text-align:center;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:24px; margin-bottom:12px;">
+        <div style="font-size:2rem; margin-bottom:12px;">📡</div>
+        <div style="font-weight:600; margin-bottom:8px; color:var(--text);">Alert Sources</div>
+        <div style="font-size:0.75rem; color:var(--muted); line-height:1.6;">
+          CloudWatch<br>
+          EventBridge<br>
+          PagerDuty<br>
+          Catchpoint<br>
+          Manual API
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:1.5rem; color:var(--border);">→</div>
+
+    <!-- AIC Platform -->
+    <div style="flex:2; min-width:280px; text-align:center;">
+      <div style="background:var(--surface); border:2px solid var(--accent); border-radius:8px; padding:24px; margin-bottom:12px; box-shadow:0 0 20px rgba(0,212,255,0.15);">
+        <div style="font-size:2rem; margin-bottom:12px;">🧠</div>
+        <div style="font-weight:700; margin-bottom:12px; color:var(--accent); font-size:1.1rem;">AI Incident Commander</div>
+        <div style="font-size:0.7rem; color:var(--muted); line-height:1.7; text-align:left;">
+          <strong style="color:var(--text);">1.</strong> Multi-tenant auth<br>
+          <strong style="color:var(--text);">2.</strong> Dedup + maintenance check<br>
+          <strong style="color:var(--text);">3.</strong> RAG retrieval (pgvector)<br>
+          <strong style="color:var(--text);">4.</strong> Claude Sonnet 4.5 triage<br>
+          <strong style="color:var(--text);">5.</strong> Blast radius mapping<br>
+          <strong style="color:var(--text);">6.</strong> Tech-aware command gen<br>
+          <strong style="color:var(--text);">7.</strong> Auto-execute diagnostics<br>
+          <strong style="color:var(--text);">8.</strong> Network reachability<br>
+          <strong style="color:var(--text);">9.</strong> Self-learning update
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:1.5rem; color:var(--border);">→</div>
+
+    <!-- Outputs -->
+    <div style="flex:1; min-width:200px; text-align:center;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:24px; margin-bottom:12px;">
+        <div style="font-size:2rem; margin-bottom:12px;">📣</div>
+        <div style="font-weight:600; margin-bottom:8px; color:var(--text);">Outputs</div>
+        <div style="font-size:0.75rem; color:var(--muted); line-height:1.6;">
+          Slack cards<br>
+          Teams cards<br>
+          Email (SES)<br>
+          PostgreSQL log<br>
+          Audit trail
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="text-align:center; margin-top:40px; padding:20px; background:rgba(0,212,255,0.05); border:1px solid rgba(0,212,255,0.15); border-radius:8px;">
+    <div style="font-size:0.8rem; color:var(--muted); line-height:1.7;">
+      <strong style="color:var(--accent);">Secure by design:</strong> Runs entirely in your AWS account (VPC isolated). No data leaves your infrastructure. SOC2 Type II roadmap Q2 2026.
+    </div>
+  </div>
+</section>
 
 <!-- SLACK CARDS -->
 <section class="slack-section" id="slack-demo">
