@@ -808,28 +808,24 @@
 <section class="video-section" id="demo">
   <div class="video-header">
     <div class="section-label">// Product demo</div>
-    <h2 class="section-title">Watch AIC triage a live P1 incident</h2>
+    <h2 class="section-title">Watch AIC detect AWS vs Kafka and generate stack-specific commands</h2>
+    <p style="color:var(--muted); font-size:0.85rem; max-width:700px; margin:12px auto 0; line-height:1.6;">
+      Silent demo showing 3-window workflow: <strong style="color:var(--text)">Terminal</strong> fires alerts → 
+      <strong style="color:var(--text)">Live Monitor</strong> shows 12-stage AI pipeline → 
+      <strong style="color:var(--text)">Slack</strong> receives triage cards with tech-specific diagnostics
+    </p>
   </div>
   <div class="video-wrapper">
-    <div class="video-inner">
-      <div class="video-bg-lines">
-        <div class="vl c1">16:42:01 [ALERT]  payments-svc error rate 45% — threshold exceeded</div>
-        <div class="vl c1">16:42:01 [AIC]    Incident received → classifying severity...</div>
-        <div class="vl c2">16:42:02 [SEV]    Classified → P1 | blast radius analysis starting</div>
-        <div class="vl c1">16:42:03 [DIAG]   Running: ecs describe-tasks, rds describe-instances...</div>
-        <div class="vl c1">16:42:05 [DIAG]   ECS: 2/4 tasks healthy | RDS: 487/500 connections</div>
-        <div class="vl c2">16:42:06 [BLAST]  fraud-svc, checkout-svc affected → escalating</div>
-        <div class="vl c3">16:42:08 [SLACK]  Triage card posted → #incidents ✓ — 8.2s total</div>
-      </div>
-      <div class="play-circle">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <path d="M10 7L22 14L10 21V7Z" fill="#060912"/>
-        </svg>
-      </div>
-      <div class="play-label">Demo video · 3 minutes</div>
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; border-radius: 8px; overflow: hidden;">
+      <iframe src="https://www.loom.com/embed/ae65887711dd45d18a8d9d1f23f47ce1?sid=a1234567" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
     </div>
   </div>
-  <div class="video-caption">Video coming soon · <a href="mailto:info@incidentai.io">Request a live walkthrough with your own AWS environment →</a></div>
+  <div class="video-caption">
+    <strong>Watch the flow:</strong> Terminal (left) fires production alerts → Live Monitor (center) shows AIC's 12-stage pipeline processing in real-time: Alert Ingested → Tenant Auth → Dedup → RAG Retrieval → Claude Triage → Blast Radius → Tech-Aware Commands → Auto Diagnostics → Network Reachability → Slack/Teams Notification → Self Learning. Slack workspace (right) receives fully-triaged incident cards in under 30 seconds.<br><br>
+    <strong>Key insight:</strong> Notice how AIC generates <em>different commands for different technologies</em> — AWS ECS alerts get <code>aws ecs</code> commands, Kafka alerts get <code>kafka-consumer-groups.sh</code> commands. AIC detects the stack automatically. No configuration needed.
+    <br><br>
+    <a href="contact.html" style="color:var(--accent)">Book a live demo with your AWS environment →</a>
+  </div>
 </section>
 
 <!-- FEATURES -->
