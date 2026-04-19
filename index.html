@@ -2,9 +2,27 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>AI Incident Commander — Autonomous Incident Triage for AWS</title>
-<meta name="description" content="AI Incident Commander autonomously triages production incidents, runs AWS diagnostics, and posts structured resolution cards to Slack in under 30 seconds. Built for regulated industries.">
+<meta name="description" content="Turn noisy production alerts into clear triage in Slack in under 30 seconds. Autonomous AWS diagnostics, blast radius mapping, and auto-resolution for regulated industries. Patent Pending.">
+<meta name="keywords" content="incident management, AIOps, incident triage, AWS, SRE, DevOps, Slack alerts, incident response, observability, on-call">
+<meta name="author" content="NovaAI Technologies LLC">
+
+<!-- Open Graph / Social -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://incidentai.io">
+<meta property="og:title" content="AI Incident Commander — Autonomous Incident Triage">
+<meta property="og:description" content="Turn noisy alerts into clear triage in Slack in under 30 seconds. Built for regulated industries on AWS.">
+<meta property="og:image" content="https://incidentai.io/aic_logo.svg">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI Incident Commander — Autonomous Incident Triage">
+<meta name="twitter:description" content="Turn noisy alerts into clear triage in Slack in under 30 seconds.">
+
+<!-- Favicon — inline SVG, no external request needed -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='6' fill='%23060d1f'/%3E%3Ccircle cx='18' cy='18' r='13' fill='none' stroke='%2300d4ff' stroke-width='1.8'/%3E%3Ccircle cx='18' cy='18' r='9' fill='none' stroke='%2300d4ff' stroke-width='0.7' stroke-dasharray='3 2'/%3E%3Cline x1='18' y1='5' x2='18' y2='11' stroke='%2300d4ff' stroke-width='1.8' stroke-linecap='round'/%3E%3Cline x1='18' y1='25' x2='18' y2='31' stroke='%2300d4ff' stroke-width='1.8' stroke-linecap='round'/%3E%3Cline x1='5' y1='18' x2='11' y2='18' stroke='%2300d4ff' stroke-width='1.8' stroke-linecap='round'/%3E%3Cline x1='25' y1='18' x2='31' y2='18' stroke='%2300d4ff' stroke-width='1.8' stroke-linecap='round'/%3E%3Cpolygon points='21,11 15,19 18,19 14,26 22,17 19,17' fill='%2300d4ff'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='6' fill='%23060d1f'/%3E%3Ccircle cx='18' cy='18' r='13' fill='none' stroke='%2300d4ff' stroke-width='1.8'/%3E%3Cpolygon points='21,11 15,19 18,19 14,26 22,17 19,17' fill='%2300d4ff'/%3E%3C/svg%3E">
+
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -63,6 +81,7 @@
   h1 { font-size: clamp(2rem, 3.5vw, 3.2rem); font-weight: 800; line-height: 1.12; letter-spacing: -0.03em; margin-bottom: 20px; animation: fadeUp 0.5s ease 0.1s both; }
   h1 em { font-style: normal; color: var(--accent); }
   h1 strong { color: var(--accent2); font-weight: 800; }
+  .hero-oneliner { font-size: 1.05rem; color: var(--text); line-height: 1.5; margin-bottom: 20px; font-weight: 400; animation: fadeUp 0.5s ease 0.15s both; max-width: 520px; letter-spacing: -0.01em; }
   .hero-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; color: var(--muted); line-height: 1.85; margin-bottom: 36px; font-weight: 300; animation: fadeUp 0.5s ease 0.2s both; max-width: 500px; }
   .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; animation: fadeUp 0.5s ease 0.3s both; margin-bottom: 48px; }
   .cta-primary { background: var(--accent); color: var(--bg); padding: 13px 28px; border-radius: 4px; font-weight: 700; font-size: 0.88rem; text-decoration: none; transition: all 0.2s; white-space: nowrap; }
@@ -97,6 +116,49 @@
   .trust-items { display: flex; align-items: center; gap: 36px; flex-wrap: wrap; justify-content: center; }
   .trust-item { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--muted); display: flex; align-items: center; gap: 7px; }
   .trust-item .check { color: var(--accent); }
+
+  /* ── WHY NOW SECTION ── */
+  .whynow-section { position: relative; z-index: 1; padding: 80px 60px; max-width: 1280px; margin: 0 auto; }
+  .whynow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px; }
+  .whynow-stat-col { display: flex; flex-direction: column; gap: 20px; }
+  .whynow-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 28px; position: relative; overflow: hidden; }
+  .whynow-stat::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px; background: var(--accent2); }
+  .whynow-stat-num { font-size: 2.4rem; font-weight: 800; color: var(--accent); letter-spacing: -0.04em; line-height: 1; margin-bottom: 10px; }
+  .whynow-stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text); margin-bottom: 6px; font-weight: 500; }
+  .whynow-stat-src { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; color: var(--muted); letter-spacing: 0.04em; }
+  .whynow-narrative { display: flex; flex-direction: column; justify-content: center; }
+  .whynow-narrative h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.02em; line-height: 1.25; }
+  .whynow-narrative h3 em { font-style: normal; color: var(--accent); }
+  .whynow-narrative p { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--muted); line-height: 1.9; margin-bottom: 16px; font-weight: 300; }
+  .whynow-narrative strong { color: var(--text); font-weight: 600; }
+
+  /* ── AWS MARKETPLACE BUYERS SECTION ── */
+  .awsbuyers-section {
+    position: relative; z-index: 1; padding: 80px 60px;
+    background: linear-gradient(135deg, rgba(255,153,0,0.04) 0%, rgba(0,212,255,0.02) 100%);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .awsbuyers-inner { max-width: 1280px; margin: 0 auto; }
+  .awsbuyers-header { text-align: center; margin-bottom: 48px; }
+  .awsbuyers-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: #FF9900; letter-spacing: 0.2em; margin-bottom: 14px; text-transform: uppercase; }
+  .awsbuyers-header h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
+  .awsbuyers-header h2 em { font-style: normal; color: var(--accent); }
+  .awsbuyers-header p { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--muted); max-width: 700px; margin: 0 auto; line-height: 1.8; font-weight: 300; }
+  .awsbuyers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .awsbuyers-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; }
+  .awsbuyers-cat { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; color: #FF9900; letter-spacing: 0.15em; margin-bottom: 10px; text-transform: uppercase; }
+  .awsbuyers-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.01em; }
+  .awsbuyers-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; color: var(--muted); line-height: 1.85; font-weight: 300; }
+  .awsbuyers-desc strong { color: var(--text); }
+  .awsbuyers-cta { text-align: center; padding-top: 20px; border-top: 1px solid var(--border); margin-top: 12px; }
+  .awsbuyers-cta p { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--muted); margin-bottom: 20px; }
+
+  @media(max-width:900px){
+    .whynow-section{padding:50px 20px}
+    .whynow-grid{grid-template-columns:1fr; gap:24px}
+    .awsbuyers-section{padding:50px 20px}
+    .awsbuyers-grid{grid-template-columns:1fr}
+  }
 
   /* ── ROI STATS ── */
   .roi-section { position: relative; z-index: 1; padding: 80px 60px; max-width: 1280px; margin: 0 auto; }
@@ -219,7 +281,7 @@
 
   /* ── FOOTER ── */
   footer { position: relative; z-index: 1; padding: 48px 60px 32px; border-top: 1px solid var(--border); }
-  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 40px; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 40px; }
   .footer-brand .footer-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.9rem; margin-bottom: 14px; }
   .footer-tagline { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
   .footer-contact { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--accent); text-decoration: none; }
@@ -231,22 +293,66 @@
 
   @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
+  /* ── Floating Book Demo button (mobile + desktop) ── */
+  .floating-cta {
+    position: fixed; bottom: 24px; right: 24px; z-index: 99;
+    background: var(--accent); color: var(--bg);
+    padding: 14px 22px; border-radius: 100px; font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.82rem; text-decoration: none;
+    box-shadow: 0 8px 28px rgba(0,212,255,0.35);
+    transition: all 0.25s; display: inline-flex; align-items: center; gap: 8px;
+    opacity: 0; pointer-events: none; transform: translateY(10px);
+  }
+  .floating-cta.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .floating-cta:hover { background: #33ddff; transform: translateY(-2px); box-shadow: 0 12px 36px rgba(0,212,255,0.45); }
+  .floating-cta::before { content: '🚀'; font-size: 1rem; }
+
+  /* ── Mobile menu toggle ── */
+  .nav-toggle { display: none; background: none; border: none; color: var(--text); cursor: pointer; font-size: 1.2rem; padding: 4px 8px; }
+
   @media(max-width:900px){
-    nav{padding:14px 24px}
-    .nav-links{display:none}
-    .hero{grid-template-columns:1fr; padding:100px 24px 60px; min-height:auto}
-    .roi-grid{grid-template-columns:1fr 1fr}
+    nav{padding:12px 20px}
+    .nav-links{
+      display:none; position:fixed; top:56px; left:0; right:0;
+      background:rgba(6,9,18,0.98); backdrop-filter:blur(20px);
+      flex-direction:column; padding:20px; gap:16px; align-items:stretch;
+      border-bottom:1px solid var(--border);
+    }
+    .nav-links.open{display:flex}
+    .nav-links a{padding:10px 0; text-align:center; font-size:0.8rem}
+    .nav-cta{text-align:center; padding:12px !important}
+    .nav-toggle{display:block}
+    .hero{grid-template-columns:1fr; padding:90px 20px 50px; min-height:auto; gap:40px}
+    .hero-oneliner{font-size:0.95rem}
+    .hero-desc{font-size:0.82rem}
+    .hero-ctas{gap:10px}
+    .cta-primary,.cta-secondary{padding:11px 20px; font-size:0.82rem}
+    .hero-metrics{gap:20px}
+    .metric-val{font-size:1.3rem}
+    h1{font-size:clamp(1.7rem, 6vw, 2.4rem)}
+    .roi-grid{grid-template-columns:1fr 1fr; gap:12px}
     .how-steps{grid-template-columns:1fr}
     .step{border-right:none; border-bottom:1px solid var(--border)}
     .step:last-child{border-bottom:none}
     .features-grid{grid-template-columns:1fr}
     .pricing-grid{grid-template-columns:1fr}
-    .footer-grid{grid-template-columns:1fr 1fr}
-    .trust-bar{padding:16px 24px; gap:16px}
-    .video-section,.faq-section,.roi-section,.why-section{padding:60px 24px}
-    .integrations,.cta-banner,.trust-badges,.features-section,.how-section,.pricing-section{padding:60px 24px}
-    footer{padding:40px 24px 24px}
-    .footer-bottom{flex-direction:column; text-align:center}
+    .footer-grid{grid-template-columns:1fr 1fr; gap:24px}
+    .trust-bar{padding:16px 20px; gap:12px; flex-wrap:wrap}
+    .video-section,.faq-section,.roi-section,.why-section{padding:50px 20px}
+    .integrations,.cta-banner,.trust-badges,.features-section,.how-section,.pricing-section{padding:50px 20px}
+    footer{padding:30px 20px 20px}
+    .footer-bottom{flex-direction:column; text-align:center; gap:12px}
+    .floating-cta{bottom:16px; right:16px; padding:12px 18px; font-size:0.75rem}
+    section h2, .section-title{font-size:clamp(1.4rem, 5vw, 1.9rem) !important}
+    /* Terminal becomes full-width readable on mobile */
+    .terminal{font-size:0.68rem}
+  }
+
+  @media(max-width:500px){
+    .roi-grid{grid-template-columns:1fr}
+    .footer-grid{grid-template-columns:1fr}
+    .hero-metrics{flex-wrap:wrap}
+    .trust-bar{justify-content:center}
   }
 
   /* ── SLACK SECTION ── */
@@ -341,31 +447,35 @@
     </svg>
     AI Incident Commander
   </a>
-  <div class="nav-links">
+  <div class="nav-links" id="navLinks">
     <a href="#how">How it works</a>
     <a href="#features">Features</a>
+    <a href="#awsbuyers">AWS Marketplace</a>
     <a href="#pricing">Pricing</a>
+    <a href="/security.html">Security</a>
     <a href="#faq">FAQ</a>
-    <a href="mailto:info@incidentai.io">Contact</a>
-    <a href="mailto:info@incidentai.io" class="nav-cta">Book a Demo →</a>
+    <a href="/contact.html" class="nav-cta">Book a Demo →</a>
   </div>
+  <button class="nav-toggle" onclick="document.getElementById('navLinks').classList.toggle('open')" aria-label="Toggle menu">☰</button>
 </nav>
+
+<!-- Floating Book Demo button (appears after scroll) -->
+<a href="/contact.html" class="floating-cta" id="floatingCta">Book a Demo</a>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-left">
-    <div class="badge">NOW AVAILABLE ON AWS MARKETPLACE · PROVISIONALLY PATENTED</div>
+    <div class="badge">NOW AVAILABLE ON AWS MARKETPLACE · PATENT PENDING</div>
     <h1>Your on-call team<br>gets <em>answers,</em><br><strong>not raw alerts.</strong></h1>
+    <p class="hero-oneliner">AIC turns noisy production alerts into clear, actionable triage — delivered to Slack in under 30 seconds.</p>
     <p class="hero-desc">
-      AI Incident Commander autonomously triages production incidents, maps blast radius
-      across dependent services, executes real AWS diagnostics, and delivers a complete
-      resolution briefing to Slack or Teams — then auto-resolves based on your runbooks
-      when configured to do so. Your engineers arrive with full context, not a raw alert.
-      Built for regulated industries on AWS.
+      Autonomous triage, blast radius mapping across dependent services, real AWS diagnostics,
+      and complete resolution briefings — with auto-resolution from your runbooks when configured.
+      Your engineers arrive with full context. Built for regulated industries on AWS.
     </p>
     <div class="hero-ctas">
-      <a href="mailto:info@incidentai.io" class="cta-primary">Book a Live Demo →</a>
-      <a href="mailto:info@incidentai.io" class="cta-secondary">Talk to Sales</a>
+      <a href="/contact.html" class="cta-primary">Book a Live Demo →</a>
+      <a href="/contact.html" class="cta-secondary">Talk to Sales</a>
     </div>
     <div class="hero-metrics">
       <div class="metric">
@@ -439,6 +549,57 @@
     <div class="roi-card">
       <div class="roi-num">&lt;30s</div>
       <div class="roi-desc">From alert received to structured resolution briefing in Slack or Teams</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- WHY NOW -->
+<section class="whynow-section" id="whynow">
+  <div class="roi-header">
+    <div class="section-label">// The moment for autonomous triage</div>
+    <h2 class="section-title">Why <em>now?</em></h2>
+  </div>
+  <div class="whynow-grid">
+    <div class="whynow-stat-col">
+      <div class="whynow-stat">
+        <div class="whynow-stat-num">76%</div>
+        <div class="whynow-stat-label">of organizations report MTTR getting worse, not better, year over year</div>
+        <div class="whynow-stat-src">— 2025 State of Incident Response survey</div>
+      </div>
+      <div class="whynow-stat">
+        <div class="whynow-stat-num">3.2×</div>
+        <div class="whynow-stat-label">more alerts per on-call engineer than five years ago — alert fatigue is the new normal</div>
+        <div class="whynow-stat-src">— Industry benchmarks, 2020 → 2025</div>
+      </div>
+      <div class="whynow-stat">
+        <div class="whynow-stat-num">$336K</div>
+        <div class="whynow-stat-label">average cost per hour of downtime in financial services — every minute of triage matters</div>
+        <div class="whynow-stat-src">— ITIC Global Survey 2024</div>
+      </div>
+    </div>
+    <div class="whynow-narrative">
+      <h3>The old playbook is <em>breaking.</em> AI triage is the only way forward.</h3>
+      <p>
+        For two decades, incident response has meant the same three steps:
+        <strong>alert → human reads → human investigates</strong>. That model worked
+        when you had 50 alerts a week. It doesn't work at 500.
+      </p>
+      <p>
+        Observability tools gave us more signal. On-call platforms gave us better paging.
+        Neither solved the real bottleneck: <strong>a human still has to read, understand,
+        and investigate every single alert before they can act.</strong>
+      </p>
+      <p>
+        Agentic AI changes that math. AIC reads the alert, maps the blast radius, runs
+        the diagnostics, checks the runbooks, and delivers a complete briefing —
+        <strong>before the engineer has finished reading the Slack notification.</strong>
+      </p>
+      <p>
+        <strong>OpsGenie sunsets April 2027.</strong> Enterprises are already evaluating replacements.
+        The smart ones aren't looking for another notification tool — they're looking for
+        autonomous triage. The window to modernize your incident response is now.
+      </p>
     </div>
   </div>
 </section>
@@ -862,7 +1023,7 @@
           <li>Self-learning RAG</li>
           <li>Email support</li>
         </ul>
-        <a href="mailto:info@incidentai.io" class="plan-cta">Get Started</a>
+        <a href="/contact.html" class="plan-cta">Get Started</a>
       </div>
       <div class="plan featured">
         <div class="plan-badge">MOST POPULAR</div>
@@ -877,7 +1038,7 @@
           <li>Dependency learning</li>
           <li>Priority support</li>
         </ul>
-        <a href="mailto:info@incidentai.io" class="plan-cta">Get Started</a>
+        <a href="/contact.html" class="plan-cta">Get Started</a>
       </div>
       <div class="plan">
         <div class="plan-name">Enterprise</div>
@@ -891,10 +1052,88 @@
           <li>Dedicated SRE support</li>
           <li>SLA guarantee</li>
         </ul>
-        <a href="mailto:info@incidentai.io" class="plan-cta">Contact Sales</a>
+        <a href="/contact.html" class="plan-cta">Contact Sales</a>
       </div>
     </div>
     <div class="pricing-note">All plans available as SaaS or CloudFormation VPC deployment · No per-seat pricing · Cancel anytime · AWS Marketplace billing available</div>
+  </div>
+</section>
+
+<!-- AWS MARKETPLACE BUYERS -->
+<section class="awsbuyers-section" id="awsbuyers">
+  <div class="awsbuyers-inner">
+    <div class="awsbuyers-header">
+      <div class="awsbuyers-label">// Built for AWS Marketplace buyers</div>
+      <h2>Procurement-ready. <em>Deployed in minutes.</em></h2>
+      <p>Everything your infrastructure, security, and procurement teams need to approve AIC — consolidated in one place.</p>
+    </div>
+
+    <div class="awsbuyers-grid">
+      <div class="awsbuyers-card">
+        <div class="awsbuyers-cat">// Deployment</div>
+        <div class="awsbuyers-title">CloudFormation template included</div>
+        <div class="awsbuyers-desc">
+          One-click deploy AIC into <strong>your own VPC</strong> via CloudFormation.
+          Stack includes VPC, subnets, ECS cluster, RDS (Multi-AZ), Redis, ALB,
+          IAM roles with least-privilege access. Full source under customer control.
+        </div>
+      </div>
+
+      <div class="awsbuyers-card">
+        <div class="awsbuyers-cat">// Infrastructure</div>
+        <div class="awsbuyers-title">ECR image · pre-built containers</div>
+        <div class="awsbuyers-desc">
+          Container images hosted in ECR Public, signed with cosign.
+          Customers pull from their own ECR after CloudFormation deploy.
+          <strong>No data flows through NovaAI infrastructure</strong> in VPC mode.
+        </div>
+      </div>
+
+      <div class="awsbuyers-card">
+        <div class="awsbuyers-cat">// Billing</div>
+        <div class="awsbuyers-title">AWS Marketplace billing</div>
+        <div class="awsbuyers-desc">
+          Charges appear on your <strong>existing AWS invoice</strong> — no new vendor
+          setup, no procurement paperwork. Uses committed AWS spend credits.
+          Private offers available for enterprise terms.
+        </div>
+      </div>
+
+      <div class="awsbuyers-card">
+        <div class="awsbuyers-cat">// Support model</div>
+        <div class="awsbuyers-title">Dedicated Slack + email SLA</div>
+        <div class="awsbuyers-desc">
+          Professional tier: 99.5% SLA, 4-hour P1 response.<br>
+          Enterprise tier: 99.9% SLA, 1-hour P1 response, dedicated Slack channel,
+          quarterly business reviews, security team escalation path.
+        </div>
+      </div>
+
+      <div class="awsbuyers-card">
+        <div class="awsbuyers-cat">// Private offers</div>
+        <div class="awsbuyers-title">Custom terms for enterprise</div>
+        <div class="awsbuyers-desc">
+          Volume discounts, multi-year commitments, custom SLAs, extended
+          payment terms, BAA for HIPAA customers. Submit your AWS account ID
+          and we'll send a private offer within 24 hours.
+        </div>
+      </div>
+
+      <div class="awsbuyers-card">
+        <div class="awsbuyers-cat">// Procurement</div>
+        <div class="awsbuyers-title">MSA templates + security docs ready</div>
+        <div class="awsbuyers-desc">
+          Master Service Agreement, DPA, and security whitepaper available
+          on request. AWS Marketplace EULA acceptable for most buyers.
+          Our legal team responds to redlines within 5 business days.
+        </div>
+      </div>
+    </div>
+
+    <div class="awsbuyers-cta">
+      <p>Need more details for your security or procurement team?</p>
+      <a href="mailto:info@incidentai.io?subject=AWS Marketplace Buyers Kit Request&body=Please send the AWS Marketplace Buyers Kit (CloudFormation template, security whitepaper, sample MSA) to:" class="cta-primary">Request Buyers Kit</a>
+    </div>
   </div>
 </section>
 
@@ -935,7 +1174,7 @@
   <h2>Give your engineers the context<br>they need, instantly.</h2>
   <p>Book a 30-minute live demo and see AIC deliver a complete incident briefing in your AWS environment.</p>
   <div class="cta-group">
-    <a href="mailto:info@incidentai.io" class="cta-primary">Book a Demo →</a>
+    <a href="/contact.html" class="cta-primary">Book a Demo →</a>
     <a href="mailto:info@incidentai.io" class="cta-secondary">info@incidentai.io</a>
   </div>
 </div>
@@ -985,22 +1224,30 @@
       <a href="#how">How it works</a>
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
-      <a href="#demo">Demo</a>
+      <a href="#demo">Slack demo</a>
       <a href="#faq">FAQ</a>
     </div>
     <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="/contact.html">Book a demo</a>
+      <a href="/security.html">Security &amp; Compliance</a>
+      <a href="#awsbuyers">AWS Marketplace guide</a>
+      <a href="mailto:info@incidentai.io?subject=Documentation Request">Documentation</a>
+      <a href="mailto:info@incidentai.io?subject=Status Page Inquiry">Status</a>
+    </div>
+    <div class="footer-col">
       <h4>Company</h4>
-      <a href="mailto:info@incidentai.io">About</a>
       <a href="mailto:info@incidentai.io">Contact</a>
-      <a href="mailto:info@incidentai.io">Careers</a>
-      <a href="mailto:info@incidentai.io">Press</a>
+      <a href="mailto:info@incidentai.io?subject=Partnership Inquiry">Partnerships</a>
+      <a href="mailto:info@incidentai.io?subject=Media Inquiry">Press</a>
+      <a href="mailto:careers@incidentai.io">Careers</a>
     </div>
     <div class="footer-col">
       <h4>Legal</h4>
-      <a href="mailto:info@incidentai.io">Privacy Policy</a>
-      <a href="mailto:info@incidentai.io">Terms of Service</a>
-      <a href="mailto:info@incidentai.io">Security</a>
-      <a href="mailto:info@incidentai.io">Compliance</a>
+      <a href="mailto:info@incidentai.io?subject=Privacy Policy Request">Privacy Policy</a>
+      <a href="mailto:info@incidentai.io?subject=Terms of Service Request">Terms of Service</a>
+      <a href="/security.html">Security</a>
+      <a href="/security.html#compliance">Compliance</a>
     </div>
   </div>
   <div class="footer-bottom">
@@ -1011,12 +1258,19 @@
 </footer>
 
 <script>
-  // FAQ toggle already handled inline
-  // Smooth scroll for nav links
+  // Smooth scroll for nav links + close mobile menu
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
       const target = document.querySelector(a.getAttribute('href'));
       if (target) { e.preventDefault(); target.scrollIntoView({behavior:'smooth', block:'start'}); }
+      document.getElementById('navLinks')?.classList.remove('open');
+    });
+  });
+
+  // Close mobile menu when clicking any nav link
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.addEventListener('click', () => {
+      document.getElementById('navLinks')?.classList.remove('open');
     });
   });
 
@@ -1025,6 +1279,18 @@
     document.querySelectorAll('.slack-tab').forEach((t,i) => t.classList.toggle('active', i===n));
   }
 
+  // Floating CTA — show after user scrolls past hero
+  const floatingCta = document.getElementById('floatingCta');
+  let lastScroll = 0;
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    if (scrolled > 600) {
+      floatingCta.classList.add('visible');
+    } else {
+      floatingCta.classList.remove('visible');
+    }
+    lastScroll = scrolled;
+  }, { passive: true });
 </script>
 
 </body>
