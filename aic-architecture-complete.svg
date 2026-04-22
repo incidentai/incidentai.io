@@ -1,0 +1,283 @@
+<!-- AIC Complete Architecture Diagram - Interactive SVG -->
+<svg viewBox="0 0 1400 900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0d1526;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#00d4ff;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#0d1526;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Arrow markers -->
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#00d4ff" opacity="0.5"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#ff6b35" opacity="0.5"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1400" height="900" fill="#060912"/>
+  
+  <!-- Grid pattern -->
+  <defs>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(0,212,255,0.02)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1400" height="900" fill="url(#grid)"/>
+
+  <!-- HEADER -->
+  <rect x="0" y="0" width="1400" height="80" fill="url(#headerGrad)"/>
+  <text x="700" y="35" font-family="Syne, sans-serif" font-size="26" fill="#e8f0fe" text-anchor="middle" font-weight="700">AI Incident Commander — How It Works</text>
+  <text x="700" y="60" font-family="Inter, sans-serif" font-size="13" fill="#6b8aad" text-anchor="middle">Alert to resolution in under 30 seconds · Runs entirely in your AWS VPC</text>
+
+  <!-- ============================================ -->
+  <!-- SECTION 1: ALERT SOURCES (Left Column) -->
+  <!-- ============================================ -->
+  <g id="alert-sources">
+    <!-- Section header -->
+    <circle cx="25" cy="110" r="5" fill="#6b8aad"/>
+    <text x="40" y="115" font-family="'JetBrains Mono', monospace" font-size="11" fill="#6b8aad" letter-spacing="1.5">ALERT SOURCES</text>
+    
+    <!-- CloudWatch -->
+    <rect x="10" y="130" width="210" height="70" rx="8" fill="#0d1526" stroke="#1a2a4a" stroke-width="1.5"/>
+    <text x="25" y="155" font-family="Inter, sans-serif" font-size="15" fill="#e8f0fe" font-weight="600">CloudWatch</text>
+    <text x="25" y="175" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8b9bb3">SNS → AIC webhook</text>
+    
+    <!-- Splunk -->
+    <rect x="10" y="210" width="210" height="70" rx="8" fill="#0d1526" stroke="#1a2a4a" stroke-width="1.5"/>
+    <text x="25" y="235" font-family="Inter, sans-serif" font-size="15" fill="#e8f0fe" font-weight="600">Splunk</text>
+    <text x="25" y="255" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8b9bb3">HEC webhook</text>
+    
+    <!-- Catchpoint -->
+    <rect x="10" y="290" width="210" height="70" rx="8" fill="#0d1526" stroke="#1a2a4a" stroke-width="1.5"/>
+    <text x="25" y="315" font-family="Inter, sans-serif" font-size="15" fill="#e8f0fe" font-weight="600">Catchpoint</text>
+    <text x="25" y="335" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8b9bb3">Synthetic monitoring</text>
+    
+    <!-- ServiceNow -->
+    <rect x="10" y="370" width="210" height="70" rx="8" fill="#0d1526" stroke="#1a2a4a" stroke-width="1.5"/>
+    <text x="25" y="395" font-family="Inter, sans-serif" font-size="15" fill="#e8f0fe" font-weight="600">ServiceNow</text>
+    <text x="25" y="415" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8b9bb3">Bidirectional connector</text>
+    
+    <!-- Manual API -->
+    <rect x="10" y="450" width="210" height="70" rx="8" fill="#0d1526" stroke="#1a2a4a" stroke-width="1.5"/>
+    <text x="25" y="475" font-family="Inter, sans-serif" font-size="15" fill="#e8f0fe" font-weight="600">Manual API</text>
+    <text x="25" y="495" font-family="'JetBrains Mono', monospace" font-size="10" fill="#8b9bb3">POST /api/v1/triage</text>
+  </g>
+
+  <!-- Flow arrow: Sources → Pipeline -->
+  <line x1="220" y1="300" x2="260" y2="300" stroke="#00d4ff" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+
+  <!-- ============================================ -->
+  <!-- SECTION 2: AIC CORE PIPELINE (Center) -->
+  <!-- ============================================ -->
+  <g id="aic-pipeline">
+    <!-- VPC Container -->
+    <rect x="260" y="100" width="880" height="620" rx="12" fill="rgba(0,212,255,0.03)" stroke="#00d4ff" stroke-width="2" stroke-dasharray="8,4"/>
+    
+    <!-- VPC Header -->
+    <circle cx="275" cy="112" r="5" fill="#00d4ff"/>
+    <text x="290" y="117" font-family="'JetBrains Mono', monospace" font-size="11" fill="#00d4ff" letter-spacing="1.5">AIC CORE PIPELINE</text>
+    <text x="290" y="135" font-family="Inter, sans-serif" font-size="10" fill="#6b8aad">Your AWS VPC — data never leaves</text>
+    
+    <!-- STEP 1: INGEST -->
+    <rect x="280" y="155" width="850" height="60" rx="8" fill="#1a2a4a" stroke="#2a3a5a" stroke-width="1.5"/>
+    <text x="300" y="175" font-family="'JetBrains Mono', monospace" font-size="10" fill="#c792ea" letter-spacing="1">STEP 1 · INGEST</text>
+    <text x="300" y="195" font-family="Inter, sans-serif" font-size="14" fill="#e8f0fe" font-weight="600">Tenant Middleware</text>
+    <text x="300" y="210" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">API key validation · multi-tenant isolation · Redis dedup (5-min TTL)</text>
+    
+    <!-- STEP 2 & 3: AI Models (side by side) -->
+    <!-- STEP 2: PRE-CLASSIFY (Haiku) -->
+    <rect x="280" y="230" width="410" height="80" rx="8" fill="rgba(198,146,234,0.08)" stroke="#c792ea" stroke-width="1.5"/>
+    <text x="300" y="250" font-family="'JetBrains Mono', monospace" font-size="10" fill="#c792ea" letter-spacing="1">STEP 2 · PRE-CLASSIFY</text>
+    <text x="300" y="270" font-family="Inter, sans-serif" font-size="14" fill="#e8f0fe" font-weight="600">Haiku model</text>
+    <text x="300" y="290" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">Fast severity estimate · P2/P3 routing · &lt;1s</text>
+    
+    <!-- STEP 3: DEEP TRIAGE (Sonnet) -->
+    <rect x="720" y="230" width="410" height="80" rx="8" fill="rgba(255,107,157,0.08)" stroke="#ff6b9d" stroke-width="1.5"/>
+    <text x="740" y="250" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ff6b9d" letter-spacing="1">STEP 3 · DEEP TRIAGE</text>
+    <text x="740" y="270" font-family="Inter, sans-serif" font-size="14" fill="#e8f0fe" font-weight="600">Sonnet model</text>
+    <text x="740" y="290" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">P0/P1 full analysis · RAG-grounded · 20-28s</text>
+    
+    <!-- STEP 4: Analysis trio (3 boxes) -->
+    <!-- STEP 4a: Blast radius -->
+    <rect x="280" y="325" width="270" height="70" rx="8" fill="rgba(0,255,157,0.06)" stroke="#00ff9d" stroke-width="1.5"/>
+    <text x="300" y="345" font-family="'JetBrains Mono', monospace" font-size="10" fill="#00ff9d" letter-spacing="1">STEP 4a</text>
+    <text x="300" y="363" font-family="Inter, sans-serif" font-size="13" fill="#e8f0fe" font-weight="600">Blast radius</text>
+    <text x="300" y="380" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">12 services · dependency map · no CMDB</text>
+    
+    <!-- STEP 4b: AWS diagnostics -->
+    <rect x="570" y="325" width="270" height="70" rx="8" fill="rgba(0,255,157,0.06)" stroke="#00ff9d" stroke-width="1.5"/>
+    <text x="590" y="345" font-family="'JetBrains Mono', monospace" font-size="10" fill="#00ff9d" letter-spacing="1">STEP 4b</text>
+    <text x="590" y="363" font-family="Inter, sans-serif" font-size="13" fill="#e8f0fe" font-weight="600">AWS diagnostics</text>
+    <text x="590" y="380" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">Real CLI output: ECS · CW · SG · VPN</text>
+    
+    <!-- STEP 4c: Network check -->
+    <rect x="860" y="325" width="270" height="70" rx="8" fill="rgba(0,255,157,0.06)" stroke="#00ff9d" stroke-width="1.5"/>
+    <text x="880" y="345" font-family="'JetBrains Mono', monospace" font-size="10" fill="#00ff9d" letter-spacing="1">STEP 4c</text>
+    <text x="880" y="363" font-family="Inter, sans-serif" font-size="13" fill="#e8f0fe" font-weight="600">Network check</text>
+    <text x="880" y="380" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">VPC routes · NACL · Reachability Analyzer</text>
+    
+    <!-- STEP 5: Approval & Remediation (side by side) -->
+    <!-- STEP 5 - P0/P1: Human approval -->
+    <rect x="280" y="410" width="410" height="70" rx="8" fill="rgba(255,203,107,0.08)" stroke="#ffcb6b" stroke-width="1.5"/>
+    <text x="300" y="430" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ffcb6b" letter-spacing="1">STEP 5 · P0/P1</text>
+    <text x="300" y="448" font-family="Inter, sans-serif" font-size="13" fill="#e8f0fe" font-weight="600">Human approval gate</text>
+    <text x="300" y="465" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">Slack APPROVE/REJECT · 15-min window · auto-escalate on timeout</text>
+    
+    <!-- STEP 5 - P2/P3: Auto-remediation -->
+    <rect x="720" y="410" width="410" height="70" rx="8" fill="rgba(0,255,157,0.06)" stroke="#00ff9d" stroke-width="1.5"/>
+    <text x="740" y="430" font-family="'JetBrains Mono', monospace" font-size="10" fill="#00ff9d" letter-spacing="1">STEP 5 · P2/P3</text>
+    <text x="740" y="448" font-family="Inter, sans-serif" font-size="13" fill="#e8f0fe" font-weight="600">Auto-remediation</text>
+    <text x="740" y="465" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">ECS scale · restart · DRY_RUN safe · pre-approved actions only</text>
+    
+    <!-- LEARNS: 3 self-learning systems -->
+    <!-- RAG Learning -->
+    <rect x="280" y="495" width="270" height="70" rx="8" fill="rgba(255,107,53,0.06)" stroke="#ff6b35" stroke-width="1.5"/>
+    <text x="300" y="515" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ff6b35" letter-spacing="1">LEARNS · RAG</text>
+    <text x="300" y="533" font-family="Inter, sans-serif" font-size="13" fill="#e8f0fe" font-weight="600">Self-learning</text>
+    <text x="300" y="550" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">187 chunks · pgvector · auto-index every 12h</text>
+    
+    <!-- Dependency Learning -->
+    <rect x="570" y="495" width="270" height="70" rx="8" fill="rgba(255,107,53,0.06)" stroke="#ff6b35" stroke-width="1.5"/>
+    <text x="590" y="515" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ff6b35" letter-spacing="1">LEARNS · DEPS</text>
+    <text x="590" y="533" font-family="Inter, sans-serif" font-size="13" fill="#e8f0fe" font-weight="600">Dependency learner</text>
+    <text x="590" y="550" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">7 pairs discovered · co-occurrence mining</text>
+    
+    <!-- Severity Learning -->
+    <rect x="860" y="495" width="270" height="70" rx="8" fill="rgba(255,107,53,0.06)" stroke="#ff6b35" stroke-width="1.5"/>
+    <text x="880" y="515" font-family="'JetBrains Mono', monospace" font-size="10" fill="#ff6b35" letter-spacing="1">LEARNS · SEV</text>
+    <text x="880" y="533" font-family="Inter, sans-serif" font-size="13" fill="#e8f0fe" font-weight="600">Severity calibration</text>
+    <text x="880" y="550" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">8 patterns · 6 services · confidence improves</text>
+    
+    <!-- Processing time badge -->
+    <rect x="580" y="585" width="140" height="30" rx="15" fill="rgba(0,255,157,0.1)" stroke="#00ff9d" stroke-width="1.5"/>
+    <text x="650" y="607" font-family="'JetBrains Mono', monospace" font-size="13" fill="#00ff9d" text-anchor="middle" font-weight="bold">&lt; 30 seconds</text>
+  </g>
+
+  <!-- Flow arrow: Pipeline → Outputs -->
+  <line x1="1140" y1="300" x2="1180" y2="300" stroke="#ff6b35" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowOrange)"/>
+
+  <!-- ============================================ -->
+  <!-- SECTION 3: OUTPUTS (Right Column) -->
+  <!-- ============================================ -->
+  <g id="outputs">
+    <!-- Section header -->
+    <circle cx="1195" cy="110" r="5" fill="#6b8aad"/>
+    <text x="1210" y="115" font-family="'JetBrains Mono', monospace" font-size="11" fill="#6b8aad" letter-spacing="1.5">OUTPUTS</text>
+    
+    <!-- Slack -->
+    <rect x="1180" y="130" width="210" height="60" rx="8" fill="#0d1526" stroke="#E01E5A" stroke-width="1.5"/>
+    <text x="1195" y="155" font-family="Inter, sans-serif" font-size="15" fill="#e8f0fe" font-weight="600">Slack</text>
+    <text x="1195" y="173" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">Block Kit · approvals · DMs</text>
+    
+    <!-- Teams -->
+    <rect x="1180" y="200" width="210" height="60" rx="8" fill="#0d1526" stroke="#5558AF" stroke-width="1.5"/>
+    <text x="1195" y="225" font-family="Inter, sans-serif" font-size="15" fill="#e8f0fe" font-weight="600">Teams</text>
+    <text x="1195" y="243" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">Adaptive Cards · approvals</text>
+    
+    <!-- Email (SES) -->
+    <rect x="1180" y="270" width="210" height="60" rx="8" fill="#0d1526" stroke="#00d4ff" stroke-width="1.5"/>
+    <text x="1195" y="295" font-family="Inter, sans-serif" font-size="15" fill="#e8f0fe" font-weight="600">Email (SES)</text>
+    <text x="1195" y="313" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">P0/P1 on-call DL</text>
+    
+    <!-- RDS PostgreSQL -->
+    <rect x="1180" y="340" width="210" height="60" rx="8" fill="#0d1526" stroke="#00ff9d" stroke-width="1.5"/>
+    <text x="1195" y="365" font-family="Inter, sans-serif" font-size="15" fill="#e8f0fe" font-weight="600">RDS PostgreSQL</text>
+    <text x="1195" y="383" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">Incidents · audit trail · SOX</text>
+    
+    <!-- ElastiCache Redis -->
+    <rect x="1180" y="410" width="210" height="60" rx="8" fill="#0d1526" stroke="#ff6b35" stroke-width="1.5"/>
+    <text x="1195" y="435" font-family="Inter, sans-serif" font-size="15" fill="#e8f0fe" font-weight="600">ElastiCache Redis</text>
+    <text x="1195" y="453" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">Dedup · maintenance · correlation</text>
+    
+    <!-- Amazon Bedrock -->
+    <rect x="1180" y="480" width="210" height="60" rx="8" fill="#0d1526" stroke="#c792ea" stroke-width="1.5"/>
+    <text x="1195" y="505" font-family="Inter, sans-serif" font-size="15" fill="#e8f0fe" font-weight="600">Amazon Bedrock</text>
+    <text x="1195" y="523" font-family="'JetBrains Mono', monospace" font-size="9" fill="#8b9bb3">AI inference · your account</text>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- INFRASTRUCTURE BAR (Bottom) -->
+  <!-- ============================================ -->
+  <g id="infrastructure">
+    <rect x="0" y="730" width="1400" height="80" fill="rgba(0,212,255,0.03)" stroke="#1a2a4a" stroke-width="1"/>
+    
+    <text x="30" y="755" font-family="'JetBrains Mono', monospace" font-size="10" fill="#6b8aad" letter-spacing="1">Infrastructure:</text>
+    
+    <g transform="translate(150, 745)">
+      <rect width="110" height="28" rx="4" fill="#0d1526" stroke="#1a2a4a" stroke-width="1"/>
+      <text x="55" y="18" font-family="'JetBrains Mono', monospace" font-size="11" fill="#e8f0fe" text-anchor="middle">ECS Fargate</text>
+    </g>
+    
+    <g transform="translate(275, 745)">
+      <rect width="140" height="28" rx="4" fill="#0d1526" stroke="#1a2a4a" stroke-width="1"/>
+      <text x="70" y="18" font-family="'JetBrains Mono', monospace" font-size="11" fill="#e8f0fe" text-anchor="middle">RDS PostgreSQL 16</text>
+    </g>
+    
+    <g transform="translate(430, 745)">
+      <rect width="140" height="28" rx="4" fill="#0d1526" stroke="#1a2a4a" stroke-width="1"/>
+      <text x="70" y="18" font-family="'JetBrains Mono', monospace" font-size="11" fill="#e8f0fe" text-anchor="middle">ElastiCache Redis 7</text>
+    </g>
+    
+    <g transform="translate(585, 745)">
+      <rect width="50" height="28" rx="4" fill="#0d1526" stroke="#1a2a4a" stroke-width="1"/>
+      <text x="25" y="18" font-family="'JetBrains Mono', monospace" font-size="11" fill="#e8f0fe" text-anchor="middle">ALB</text>
+    </g>
+    
+    <g transform="translate(650, 745)">
+      <rect width="125" height="28" rx="4" fill="#0d1526" stroke="#1a2a4a" stroke-width="1"/>
+      <text x="62" y="18" font-family="'JetBrains Mono', monospace" font-size="11" fill="#e8f0fe" text-anchor="middle">Secrets Manager</text>
+    </g>
+    
+    <g transform="translate(790, 745)">
+      <rect width="85" height="28" rx="4" fill="#0d1526" stroke="#1a2a4a" stroke-width="1"/>
+      <text x="42" y="18" font-family="'JetBrains Mono', monospace" font-size="11" fill="#e8f0fe" text-anchor="middle">CloudTrail</text>
+    </g>
+    
+    <g transform="translate(890, 745)">
+      <rect width="50" height="28" rx="4" fill="#0d1526" stroke="#1a2a4a" stroke-width="1"/>
+      <text x="25" y="18" font-family="'JetBrains Mono', monospace" font-size="11" fill="#e8f0fe" text-anchor="middle">SQS</text>
+    </g>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- TRUST BADGES (Bottom) -->
+  <!-- ============================================ -->
+  <g id="trust-badges">
+    <rect x="0" y="810" width="1400" height="90" fill="#0a1020"/>
+    
+    <g transform="translate(200, 840)">
+      <circle cx="0" cy="0" r="12" fill="none" stroke="#00d4ff" stroke-width="2"/>
+      <path d="M-4 0 L-1 3 L4 -4" stroke="#00ff9d" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <text x="20" y="5" font-family="Inter, sans-serif" font-size="13" fill="#e8f0fe">All data stays in your AWS VPC</text>
+    </g>
+    
+    <g transform="translate(550, 840)">
+      <circle cx="0" cy="0" r="12" fill="none" stroke="#00d4ff" stroke-width="2"/>
+      <path d="M-4 0 L-1 3 L4 -4" stroke="#00ff9d" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <text x="20" y="5" font-family="Inter, sans-serif" font-size="13" fill="#e8f0fe">35/35 tests passing</text>
+    </g>
+    
+    <g transform="translate(800, 840)">
+      <circle cx="0" cy="0" r="12" fill="none" stroke="#00d4ff" stroke-width="2"/>
+      <path d="M-4 0 L-1 3 L4 -4" stroke="#00ff9d" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <text x="20" y="5" font-family="Inter, sans-serif" font-size="13" fill="#e8f0fe">48hr stability run complete</text>
+    </g>
+  </g>
+  
+  <style>
+    /* Hover effects for interactive elements */
+    rect:hover {
+      opacity: 0.9;
+      cursor: pointer;
+    }
+    
+    /* Optional: Add tooltips on hover */
+    g[id*="step"] rect:hover + text {
+      fill: #00d4ff;
+    }
+  </style>
+</svg>

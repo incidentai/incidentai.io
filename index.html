@@ -855,27 +855,29 @@
   <div class="how-inner">
     <div class="how-header">
       <div class="section-label">// How it works</div>
-      <h2 class="section-title">Three steps. Full context delivered instantly.</h2>
+      <h2 class="section-title">Alert to resolution in under 30 seconds</h2>
+      <p style="max-width:800px; margin:20px auto 50px; color:var(--muted); font-size:1rem; text-align:center; line-height:1.7;">
+        From alert ingestion to executed AWS diagnostics — fully autonomous. Here's what happens when an incident fires in your production environment:
+      </p>
     </div>
-    <div class="how-steps">
-      <div class="step">
-        <div class="step-num">// STEP 01</div>
-        <div class="step-title">Alert Ingested</div>
-        <div class="step-desc">AIC receives alerts from CloudWatch, EventBridge, PagerDuty, Catchpoint, or any webhook endpoint. No per-alert configuration needed. Multi-tenant isolation ensures each customer only sees their own data.</div>
-        <div class="step-time">→ t+0s</div>
-      </div>
-      <div class="step">
-        <div class="step-num">// STEP 02</div>
-        <div class="step-title">Autonomous Triage</div>
-        <div class="step-desc">Claude AI on AWS Bedrock classifies severity P0–P3, executes real AWS diagnostic commands (ECS, RDS, CloudWatch, VPC Reachability), discovers blast radius, and cross-references against historical incidents via self-learning RAG.</div>
-        <div class="step-time">→ t+1s to t+8s</div>
-      </div>
-      <div class="step">
-        <div class="step-num">// STEP 03</div>
-        <div class="step-title">Resolution Card Delivered</div>
-        <div class="step-desc">A structured card with real diagnostic output, affected services, severity classification, historical context, and recommended runbook actions is posted to Slack or Teams. Your team gets context, not noise.</div>
-        <div class="step-time">→ t+8s to t+30s</div>
-      </div>
+    
+    <!-- COMPREHENSIVE ARCHITECTURE DIAGRAM -->
+    <div style="max-width:1400px; margin:0 auto 50px; background:rgba(0,212,255,0.02); padding:40px; border-radius:12px; border:1px solid rgba(0,212,255,0.08);">
+      <img src="aic-architecture-complete.svg" 
+           alt="AI Incident Commander - Complete Architecture: Alert Sources, 11-Step Pipeline, and Outputs" 
+           style="width:100%; height:auto; display:block;">
+    </div>
+    
+    <!-- CONTEXT EXPLANATION -->
+    <div style="max-width:900px; margin:0 auto; padding:30px; background:rgba(0,212,255,0.03); border-radius:8px; border-left:3px solid var(--accent);">
+      <p style="color:var(--text); font-size:1.05rem; font-weight:500; margin-bottom:16px;">
+        <strong style="color:var(--accent);">What makes AIC different:</strong>
+      </p>
+      <p style="color:var(--muted); font-size:0.95rem; line-height:1.8; margin:0;">
+        Every step runs autonomously in your AWS VPC. No human in the loop until Slack delivers the complete briefing. 
+        Your on-call engineer gets root cause analysis, blast radius mapping, and real AWS diagnostic output — not just an alert. 
+        <strong style="color:var(--text);">P0/P1 incidents require approval.</strong> P2/P3 incidents auto-remediate with DRY_RUN safety checks.
+      </p>
     </div>
   </div>
 </section>
