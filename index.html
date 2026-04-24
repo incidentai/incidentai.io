@@ -26,33 +26,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #060912;
-    --surface: #0d1526;
-    --border: #1a2a4a;
-    --accent: #00d4ff;
-    --accent2: #ff6b35;
-    --text: #e8f0fe;
-    --muted: #6b8aad;
-    --green: #00ff9d;
+    --bg: #fafbfc;
+    --surface: #ffffff;
+    --border: #e1e4e8;
+    --accent: #667eea;
+    --accent2: #f093fb;
+    --text: #24292e;
+    --muted: #586069;
+    --green: #22863a;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow-x: hidden; line-height: 1.6; }
   body::before {
     content: ''; position: fixed; inset: 0;
-    background-image: linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
-    background-size: 60px 60px; pointer-events: none; z-index: 0;
+    background-image: linear-gradient(rgba(102,126,234,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(102,126,234,0.02) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
   }
-  .orb { position: fixed; border-radius: 50%; filter: blur(130px); pointer-events: none; z-index: 0; }
-  .orb-1 { width: 500px; height: 500px; background: rgba(0,212,255,0.05); top: -150px; right: -80px; }
-  .orb-2 { width: 350px; height: 350px; background: rgba(255,107,53,0.04); bottom: 150px; left: -80px; }
 
   /* ── NAV ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 16px 60px; background: rgba(6,9,18,0.92); backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
+    padding: 16px 60px; background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   }
   .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 0.95rem; letter-spacing: -0.02em; text-decoration: none; color: var(--text); }
   .nav-links { display: flex; align-items: center; gap: 32px; }
@@ -95,15 +92,15 @@
 
   /* Hero terminal */
   .hero-right { animation: fadeUp 0.5s ease 0.2s both; }
-  .terminal { background: #050810; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; box-shadow: 0 24px 60px rgba(0,0,0,0.4); }
-  .terminal-header { background: #0a1020; padding: 12px 16px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid var(--border); }
+  .terminal { background: #1a1f2e; border: 1px solid #2d3748; border-radius: 10px; overflow: hidden; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+  .terminal-header { background: #252d3d; padding: 12px 16px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid #3a4556; }
   .dot { width: 10px; height: 10px; border-radius: 50%; }
   .dot-r{background:#ff5f57} .dot-y{background:#febc2e} .dot-g{background:#28c840}
-  .terminal-title { font-size: 0.67rem; color: var(--muted); margin-left: 6px; letter-spacing: 0.05em; }
-  .terminal-body { padding: 20px; line-height: 1.9; }
-  .t-time{color:var(--muted)} .t-info{color:var(--accent)} .t-warn{color:var(--accent2)}
-  .t-success{color:var(--green)} .t-key{color:#c792ea} .t-val{color:#ffcb6b}
-  .cursor { display: inline-block; width: 7px; height: 13px; background: var(--accent); animation: blink 1s infinite; vertical-align: middle; }
+  .terminal-title { font-size: 0.67rem; color: #8b92a0; margin-left: 6px; letter-spacing: 0.05em; }
+  .terminal-body { padding: 20px; line-height: 1.9; color: #e2e8f0; }
+  .t-time{color:#8b92a0} .t-info{color:#667eea} .t-warn{color:#f093fb}
+  .t-success{color:#48bb78} .t-key{color:#c792ea} .t-val{color:#ffcb6b}
+  .cursor { display: inline-block; width: 7px; height: 13px; background: #667eea; animation: blink 1s infinite; vertical-align: middle; }
   @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
   /* ── TRUST BAR ── */
@@ -163,7 +160,7 @@
   /* ── ROI STATS ── */
   .roi-section { position: relative; z-index: 1; padding: 80px 60px; max-width: 1280px; margin: 0 auto; }
   .roi-header { text-align: center; margin-bottom: 56px; }
-  .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 14px; }
+  .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 14px; font-weight: 600; }
   .section-title { font-family: 'Syne', sans-serif; font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; }
   .roi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
   .roi-card { padding: 36px 28px; background: var(--surface); border: 1px solid var(--border); text-align: center; transition: border-color 0.3s; }
